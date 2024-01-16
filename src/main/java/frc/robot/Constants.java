@@ -154,6 +154,10 @@ public final class Constants {
     public static final double CONTROLLER_DEADBAND = 0.1;
   }
 
+  public static final class COLOR {
+    public static final int COLOR_SENSOR_PORT = 0;
+  }
+
   public static final class VISION {
     public enum TARGET_TYPE {
       APRILTAG, REFLECTIVE_TAPE, CONE, CUBE
@@ -186,6 +190,7 @@ public final class Constants {
     public static final double CONE_DETECTION_CURRENT = 29;
 
     public static final double BLINK_INTERVAL = 0.3; // seconds
+
 
     public static final double ENSURE_RANGE(double value, double min, double max) {
       return Math.min(Math.max(value, min), max);

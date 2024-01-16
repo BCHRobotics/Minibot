@@ -3,7 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
+import edu.wpi.first.wpilibj.I2C;
+import com.revrobotics.ColorSensorV3;
 import frc.robot.Constants.CHASSIS;
 import frc.robot.Constants.MISC;
 import frc.robot.Constants.PERIPHERALS;
@@ -12,6 +13,7 @@ import frc.robot.Constants.VISION.TARGET_TYPE;
 import frc.robot.util.control.SparkMaxPID;
 import frc.robot.util.devices.Gyro;
 import frc.robot.util.devices.Limelight;
+import frc.robot.util.devices.ColorSensor;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,9 +29,13 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkPIDController.AccelStrategy;
+import edu.wpi.first.wpilibj.util.Color;
+
+
+
 
 public class Drivetrain extends SubsystemBase {
-
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final CANSparkMax frontLeftMotor;
   private final CANSparkMax frontRightMotor;
   private final CANSparkMax backLeftMotor;
@@ -45,6 +51,7 @@ public class Drivetrain extends SubsystemBase {
 
   private final Gyro gyro;
   private final Limelight limelight;
+  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
 
   /** Creates a new Drive subsystem. */
   public Drivetrain() {
@@ -97,6 +104,7 @@ public class Drivetrain extends SubsystemBase {
     this.limelight = Limelight.getInstance();
     this.limelight.setDesiredTarget(TARGET_TYPE.REFLECTIVE_TAPE);
     this.limelight.setLedMode(1);
+    
 
     this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
   }
@@ -171,6 +179,18 @@ public class Drivetrain extends SubsystemBase {
   /**
    * Uses PID along with limelight data to turn to target
    */
+  public Command getColor() {
+    Color detectedColor = m_colorSensor.getColor();
+
+    return run(() -> {
+      this.m_colorSensor.getColor();
+      SmartDashboard.putNumber("Red", detectedColor.red);
+      SmartDashboard.putNumber("Green", detectedColor.green);
+      SmartDashboard.putNumber("Blue", detectedColor.green);
+
+    });
+  }
+
   public Command goToTarget() {
     return new PIDCommand(
         new PIDController(
