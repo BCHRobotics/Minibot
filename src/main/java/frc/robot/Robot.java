@@ -94,6 +94,7 @@ public class Robot extends TimedRobot {
     this.robotContainer.ARM_RESET().schedule();
 
     this.robotContainer.resetHeading();
+    this.robotContainer.resetPosition();
   }
 
   /** This function is called periodically during operator control. */

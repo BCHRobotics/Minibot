@@ -162,4 +162,8 @@ public class RobotContainer {
   public void resetHeading() {
     this.drivetrain.resetGyro();
   }
+
+  public void resetPosition() {
+    this.drivetrain.resetXY();
+  }
 }

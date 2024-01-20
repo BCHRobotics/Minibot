@@ -112,7 +112,7 @@ public class Drivetrain extends SubsystemBase {
     this.limelight.setLedMode(1);
 
     this.odometry = new DifferentialDriveOdometry(
-      gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition());
+      gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
     
 
     this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
@@ -449,6 +449,10 @@ public class Drivetrain extends SubsystemBase {
     return this.leftEncoder.getPosition();
   }
 
+  private double getLeftPositionMeters() {
+    return this.leftEncoder.getPosition() * 0.0254;
+  }
+
   /**
    * Returns the drivetrain's right encoder position in inches
    * 
@@ -458,6 +462,10 @@ public class Drivetrain extends SubsystemBase {
     return this.rightEncoder.getPosition();
   }
 
+  private double getRightPositionMeters() {
+    return this.rightEncoder.getPosition() * 0.0254;
+  }
+  
   /**
    * Returns the drivetrain's average encoder position in inches
    * 
@@ -619,8 +627,8 @@ public class Drivetrain extends SubsystemBase {
     this.drive.feed();
 
     SmartDashboard.putNumber("Pitch", this.gyro.getPitch());
-    SmartDashboard.putNumber("Left Position", this.getLeftPosition());
-    SmartDashboard.putNumber("Right Position", this.getRightPosition());
+    SmartDashboard.putNumber("Left Position", this.getLeftPositionMeters());
+    SmartDashboard.putNumber("Right Position", this.getRightPositionMeters());
 
     SmartDashboard.putNumber("Left Velocity", this.getLeftVelocity());
     SmartDashboard.putNumber("Right Velocity", this.getRightVelocity());
@@ -631,15 +639,19 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Velocity Conversion", this.leftEncoder.getVelocityConversionFactor());
     SmartDashboard.putNumber("Heading", this.getHeading());
 
-    SmartDashboard.putNumber("X position", -this.getPose().getX());
-    SmartDashboard.putNumber("Y position", -this.getPose().getY());
+    SmartDashboard.putNumber("X position", this.getPose().getX());
+    SmartDashboard.putNumber("Y position", this.getPose().getY());
 
     odometry.update(
-        gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition());
+        gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
   }
 
   public Pose2d getPose() {
     return odometry.getPoseMeters();
+  }
+
+  public void resetXY() {
+    resetPose(new Pose2d());
   }
 
   public void resetPose(Pose2d pose) {
