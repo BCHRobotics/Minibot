@@ -176,8 +176,8 @@ public class Drivetrain extends SubsystemBase {
    * Returns whether or not the robot has reached the desired position
    */
   private boolean reachedPosition() {
-    return this.leftMotorController.reachedSetpoint(this.getLeftPosition(), CHASSIS.TOLERANCE) &&
-        this.rightMotorController.reachedSetpoint(this.getRightPosition(), CHASSIS.TOLERANCE);
+    return this.leftMotorController.reachedSetpoint(this.getLeftPositionInches(), CHASSIS.TOLERANCE) &&
+        this.rightMotorController.reachedSetpoint(this.getRightPositionInches(), CHASSIS.TOLERANCE);
   }
 
   /**
@@ -629,8 +629,8 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Left Position", this.getLeftPositionMeters());
     SmartDashboard.putNumber("Right Position", this.getRightPositionMeters());
 
-    SmartDashboard.putNumber("Left Velocity", this.getLeftVelocity());
-    SmartDashboard.putNumber("Right Velocity", this.getRightVelocity());
+    SmartDashboard.putNumber("Left Velocity", this.getLeftVelocityMeters());
+    SmartDashboard.putNumber("Right Velocity", this.getRightVelocityMeters());
 
     SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocityMeters());
     SmartDashboard.putNumber("Rotational Velocity", this.getTurnRateRad());
