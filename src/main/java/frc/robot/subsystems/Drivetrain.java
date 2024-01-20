@@ -441,27 +441,25 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Returns the drivetrain's left encoder position in inches
+   * Returns the drivetrain's left encoder position in inches and meters respectively
    * 
    * @return Left Position
    */
-  private double getLeftPosition() {
+  private double getLeftPositionInches() {
     return this.leftEncoder.getPosition();
   }
-
   private double getLeftPositionMeters() {
     return this.leftEncoder.getPosition() * 0.0254;
   }
 
   /**
-   * Returns the drivetrain's right encoder position in inches
+   * Returns the drivetrain's right encoder position in inches and meters respectively
    * 
    * @return Right Position
    */
-  private double getRightPosition() {
+  private double getRightPositionInches() {
     return this.rightEncoder.getPosition();
   }
-
   private double getRightPositionMeters() {
     return this.rightEncoder.getPosition() * 0.0254;
   }
@@ -471,44 +469,44 @@ public class Drivetrain extends SubsystemBase {
    * 
    * @return Average Position
    */
-  public double getAveragePosition() {
-    return (this.getLeftPosition() + this.getRightPosition()) / 2;
+  public double getAveragePositionInches() {
+    return (this.getLeftPositionInches() + this.getRightPositionInches()) / 2;
   }
 
   /**
-   * Returns the drivetrain's left encoder velocity in inches / second
+   * Returns the drivetrain's left encoder velocityin inches and meters per second respectively
    * 
    * @return Left Velocity
    */
-  private double getLeftVelocity() {
+  private double getLeftVelocityInches() {
     return this.leftEncoder.getVelocity();
   }
+  private double getLeftVelocityMeters() {
+    return this.leftEncoder.getVelocity() * 0.0254;
+  }
 
   /**
-   * Returns the drivetrain's left encoder velocity in inches / second
+   * Returns the drivetrain's right encoder velocity in inches and meters per second respectively
    * 
-   * @return Left Velocity
+   * @return Right Velocity
    */
-  private double getRightVelocity() {
+  private double getRightVelocityInches() {
     return this.rightEncoder.getVelocity();
   }
-
-  /**
-   * Returns the drivetrain's average encoder velocty in inches / second
-   * 
-   * @return Average Velocity
-   */
-  public double getAverageVelocity() {
-    return (this.getLeftVelocity() + this.getRightVelocity()) / 2;
+  private double getRightVelocityMeters() {
+    return this.rightEncoder.getVelocity() * 0.0254;
   }
 
   /**
-   * Returns the drivetrain's average encoder velocty in METERS / second
+   * Returns the drivetrain's average encoder velocty in inches and meters per second respectively
    * 
    * @return Average Velocity
    */
+  public double getAverageVelocityInches() {
+    return (this.getLeftVelocityInches() + this.getRightVelocityInches()) / 2;
+  }
   public double getAverageVelocityMeters() {
-    return (this.getLeftVelocity() + this.getRightVelocity()) / 2 * 0.0254;
+    return (this.getLeftVelocityMeters() + this.getRightVelocityMeters()) / 2;
   }
 
   /**
@@ -520,13 +518,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Resest drivetrain gyro position
-   */
-  public void resetGyro() {
-    this.gyro.reset();
-  }
-
-  /**
    * Updates motor controllers after settings change
    */
   private void pushControllerUpdate() {
@@ -534,6 +525,121 @@ public class Drivetrain extends SubsystemBase {
     this.frontRightMotor.burnFlash();
     this.backLeftMotor.burnFlash();
     this.backRightMotor.burnFlash();
+  }
+
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts  the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void setVoltageOutput(double leftVolts, double rightVolts) {
+    this.frontLeftMotor.setVoltage(leftVolts);
+    this.frontRightMotor.setVoltage(rightVolts);
+    this.drive.feed();
+  }
+
+   /**
+   * Resest drivetrain gyro position
+   */
+  public void resetGyro() {
+    this.gyro.reset();
+  }
+
+  /**
+   * Returns the heading of the robot.
+   *
+   * @return the robot's heading in DEGREES, from -180 to 180
+   */
+  public double getHeadingDeg() {
+    return this.gyro.getRotation2d().getDegrees();
+  }
+
+  /**
+   * Returns the turn rate of the robot.
+   *
+   * @return The turn rate of the robot, in DEGREES per second
+   */
+  public double getTurnRateDeg() {
+    return -this.gyro.getRate();
+  }
+
+  /**
+   * Returns the turn rate of the robot.
+   *
+   * @return The turn rate of the robot, in RADIANS per second
+   */
+  public double getTurnRateRad() {
+    return -this.gyro.getRate() * (Math.PI / 180);
+  }
+
+  /**
+   * Returns a ChassisSpeeds class with robot data (used for pathplanner).
+   *
+   * @return some data in the form of ChassisSpeeds
+   */
+  public ChassisSpeeds getChassisSpeeds() {
+    return new ChassisSpeeds(getAverageVelocityMeters(), 0, getTurnRateRad());
+  }
+
+  /* This function drives the robot using arcadeDrive, which would normally use values from -1 to 1.
+   * We're instead passing a m/s value, which might be causing some inaccuracies.
+   * They might also be PID problems.
+   */
+  public void setChassisSpeeds(ChassisSpeeds speed) {
+    arcadeDrive(speed.vxMetersPerSecond, speed.omegaRadiansPerSecond);
+  }
+
+  /* Gets the position of the robot via pose2d
+  */
+  public Pose2d getPose() {
+    return odometry.getPoseMeters();
+  }
+
+  /* Resets the position of the robot via pose2d
+  */
+  public void resetPose(Pose2d pose) {
+    resetEncoders();
+    odometry.resetPosition(
+        gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), pose);
+  }
+
+  /* Resets the position of the robot to 0, 0
+  * TODO: Find a beter way to do this
+  */
+  public void resetXY() {
+    resetPose(new Pose2d());
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    this.drive.feed();
+
+    odometry.update(
+        gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
+
+    printToDashBoard();
+  }
+
+  /* Prints all values to the dashboard.
+  */
+  public void printToDashBoard() {
+    SmartDashboard.putNumber("Pitch", this.gyro.getPitch());
+    SmartDashboard.putNumber("Left Position", this.getLeftPositionMeters());
+    SmartDashboard.putNumber("Right Position", this.getRightPositionMeters());
+
+    SmartDashboard.putNumber("Left Velocity", this.getLeftVelocity());
+    SmartDashboard.putNumber("Right Velocity", this.getRightVelocity());
+
+    SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocityMeters());
+    SmartDashboard.putNumber("Rotational Velocity", this.getTurnRateRad());
+
+    SmartDashboard.putNumber("Velocity Conversion", this.leftEncoder.getVelocityConversionFactor());
+    SmartDashboard.putNumber("Heading", this.getHeadingDeg());
+
+    SmartDashboard.putNumber("X position", this.getPose().getX());
+    SmartDashboard.putNumber("Y position", this.getPose().getY());
   }
 
   /**
@@ -563,100 +669,5 @@ public class Drivetrain extends SubsystemBase {
    */
   private void searchForCone() {
     this.limelight.setDesiredTarget(TARGET_TYPE.CONE);
-  }
-
-  // Path planning methods
-
-  /**
-   * Controls the left and right sides of the drive directly with voltages.
-   *
-   * @param leftVolts  the commanded left output
-   * @param rightVolts the commanded right output
-   */
-  public void setVoltageOutput(double leftVolts, double rightVolts) {
-    this.frontLeftMotor.setVoltage(leftVolts);
-    this.frontRightMotor.setVoltage(rightVolts);
-    this.drive.feed();
-  }
-
-  /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
-    this.gyro.reset();
-  }
-
-  /**
-   * Returns the heading of the robot.
-   *
-   * @return the robot's heading in degrees, from -180 to 180
-   */
-  public double getHeading() {
-    return this.gyro.getRotation2d().getDegrees();
-  }
-
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second
-   */
-  public double getTurnRate() {
-    return -this.gyro.getRate();
-  }
-
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in radians per second
-   */
-  public double getTurnRateRad() {
-    return -this.gyro.getRate() * (Math.PI / 180);
-  }
-
-  public ChassisSpeeds getChassisSpeeds() {
-    return new ChassisSpeeds(getAverageVelocityMeters(), 0, getTurnRateRad());
-  }
-
-  // This needs to be fixed
-  // gear ratio 1:7.2 diameter 6 Inches (according to constants)
-  public void setChassisSpeeds(ChassisSpeeds speed) {
-    arcadeDrive(speed.vxMetersPerSecond, speed.omegaRadiansPerSecond);
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    this.drive.feed();
-
-    SmartDashboard.putNumber("Pitch", this.gyro.getPitch());
-    SmartDashboard.putNumber("Left Position", this.getLeftPositionMeters());
-    SmartDashboard.putNumber("Right Position", this.getRightPositionMeters());
-
-    SmartDashboard.putNumber("Left Velocity", this.getLeftVelocity());
-    SmartDashboard.putNumber("Right Velocity", this.getRightVelocity());
-
-    SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocityMeters());
-    SmartDashboard.putNumber("Rotational Velocity", this.getTurnRateRad());
-
-    SmartDashboard.putNumber("Velocity Conversion", this.leftEncoder.getVelocityConversionFactor());
-    SmartDashboard.putNumber("Heading", this.getHeading());
-
-    SmartDashboard.putNumber("X position", this.getPose().getX());
-    SmartDashboard.putNumber("Y position", this.getPose().getY());
-
-    odometry.update(
-        gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
-  }
-
-  public Pose2d getPose() {
-    return odometry.getPoseMeters();
-  }
-
-  public void resetXY() {
-    resetPose(new Pose2d());
-  }
-
-  public void resetPose(Pose2d pose) {
-    resetEncoders();
-    odometry.resetPosition(
-        gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), pose);
   }
 }
