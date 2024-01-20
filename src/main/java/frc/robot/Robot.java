@@ -92,6 +92,8 @@ public class Robot extends TimedRobot {
     }
     this.robotContainer.CHASSIS_RESET().schedule();
     this.robotContainer.ARM_RESET().schedule();
+
+    this.robotContainer.resetHeading();
   }
 
   /** This function is called periodically during operator control. */

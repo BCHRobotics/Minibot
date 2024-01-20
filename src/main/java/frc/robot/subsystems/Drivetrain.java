@@ -503,11 +503,6 @@ public class Drivetrain extends SubsystemBase {
     return (this.getLeftVelocity() + this.getRightVelocity()) / 2 * 0.0254;
   }
 
-  public void setVelocity(double forward, double rot) {
-    this.leftMotorController.setVelocity(forward + rot);
-    this.rightMotorController.setVelocity(forward - rot);
-  }
-
   /**
    * Resest all drivetrain encoder positions
    */
@@ -615,8 +610,7 @@ public class Drivetrain extends SubsystemBase {
   // This needs to be fixed
   // gear ratio 1:7.2 diameter 6 Inches (according to constants)
   public void setChassisSpeeds(ChassisSpeeds speed) {
-    setVelocity(speed.vxMetersPerSecond, speed.omegaRadiansPerSecond);
-    //arcadeDrive(speed.vxMetersPerSecond / 3, speed.omegaRadiansPerSecond);
+    arcadeDrive(speed.vxMetersPerSecond, speed.omegaRadiansPerSecond);
   }
 
   @Override
@@ -631,10 +625,14 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Left Velocity", this.getLeftVelocity());
     SmartDashboard.putNumber("Right Velocity", this.getRightVelocity());
 
-    SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocity());
+    SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocityMeters());
     SmartDashboard.putNumber("Rotational Velocity", this.getTurnRateRad());
 
     SmartDashboard.putNumber("Velocity Conversion", this.leftEncoder.getVelocityConversionFactor());
+    SmartDashboard.putNumber("Heading", this.getHeading());
+
+    SmartDashboard.putNumber("X position", -this.getPose().getX());
+    SmartDashboard.putNumber("Y position", -this.getPose().getY());
 
     odometry.update(
         gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition());
