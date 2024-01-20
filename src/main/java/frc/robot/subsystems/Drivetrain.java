@@ -16,6 +16,7 @@ import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -587,7 +588,9 @@ public class Drivetrain extends SubsystemBase {
    * They might also be PID problems.
    */
   public void setChassisSpeeds(ChassisSpeeds speed) {
-    arcadeDrive(speed.vxMetersPerSecond, speed.omegaRadiansPerSecond);
+    double linearSpeed = MathUtil.clamp(speed.vxMetersPerSecond / 3.5, -1, 1);
+    double rotSpeed = speed.omegaRadiansPerSecond;
+    arcadeDrive(linearSpeed, rotSpeed);
   }
 
   /* Gets the position of the robot via pose2d

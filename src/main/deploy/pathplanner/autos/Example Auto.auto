@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6105853807149207,
-      "y": 7.156822518773243
+      "x": 0.528948516329338,
+      "y": 7.136823014738666
     },
     "rotation": 0
   },
@@ -14,19 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.3
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SHOOT"
+            "pathName": "Example Path 2"
           }
         }
       ]
