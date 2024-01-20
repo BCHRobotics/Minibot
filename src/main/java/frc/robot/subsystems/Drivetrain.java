@@ -3,8 +3,32 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-import edu.wpi.first.wpilibj.I2C;
+import java.util.function.DoubleSupplier;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController.AccelStrategy;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CHASSIS;
 import frc.robot.Constants.MISC;
 import frc.robot.Constants.PERIPHERALS;
@@ -13,26 +37,6 @@ import frc.robot.Constants.VISION.TARGET_TYPE;
 import frc.robot.util.control.SparkMaxPID;
 import frc.robot.util.devices.Gyro;
 import frc.robot.util.devices.Limelight;
-import frc.robot.util.devices.ColorSensor;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-
-import java.util.function.DoubleSupplier;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkPIDController.AccelStrategy;
-import edu.wpi.first.wpilibj.util.Color;
-
-
-
 
 public class Drivetrain extends SubsystemBase {
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
@@ -52,6 +56,8 @@ public class Drivetrain extends SubsystemBase {
   private final Gyro gyro;
   private final Limelight limelight;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
+
+  private final DifferentialDriveOdometry odometry;
 
   /** Creates a new Drive subsystem. */
   public Drivetrain() {
@@ -104,9 +110,32 @@ public class Drivetrain extends SubsystemBase {
     this.limelight = Limelight.getInstance();
     this.limelight.setDesiredTarget(TARGET_TYPE.REFLECTIVE_TAPE);
     this.limelight.setLedMode(1);
+
+    this.odometry = new DifferentialDriveOdometry(
+      gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition());
     
 
     this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
+
+    AutoBuilder.configureRamsete(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getChassisSpeeds, // Current ChassisSpeeds supplier
+                this::setChassisSpeeds, // Method that will drive the robot given ChassisSpeeds
+                new ReplanningConfig(), // Default path replanning config. See the API for the options here
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
   }
 
   /**
@@ -453,7 +482,7 @@ public class Drivetrain extends SubsystemBase {
    * @return Left Velocity
    */
   private double getRightVelocity() {
-    return this.leftEncoder.getVelocity();
+    return this.rightEncoder.getVelocity();
   }
 
   /**
@@ -463,6 +492,20 @@ public class Drivetrain extends SubsystemBase {
    */
   public double getAverageVelocity() {
     return (this.getLeftVelocity() + this.getRightVelocity()) / 2;
+  }
+
+  /**
+   * Returns the drivetrain's average encoder velocty in METERS / second
+   * 
+   * @return Average Velocity
+   */
+  public double getAverageVelocityMeters() {
+    return (this.getLeftVelocity() + this.getRightVelocity()) / 2 * 0.0254;
+  }
+
+  public void setVelocity(double forward, double rot) {
+    this.leftMotorController.setVelocity(forward + rot);
+    this.rightMotorController.setVelocity(forward - rot);
   }
 
   /**
@@ -556,6 +599,26 @@ public class Drivetrain extends SubsystemBase {
     return -this.gyro.getRate();
   }
 
+  /**
+   * Returns the turn rate of the robot.
+   *
+   * @return The turn rate of the robot, in radians per second
+   */
+  public double getTurnRateRad() {
+    return -this.gyro.getRate() * (Math.PI / 180);
+  }
+
+  public ChassisSpeeds getChassisSpeeds() {
+    return new ChassisSpeeds(getAverageVelocityMeters(), 0, getTurnRateRad());
+  }
+
+  // This needs to be fixed
+  // gear ratio 1:7.2 diameter 6 Inches (according to constants)
+  public void setChassisSpeeds(ChassisSpeeds speed) {
+    setVelocity(speed.vxMetersPerSecond, speed.omegaRadiansPerSecond);
+    //arcadeDrive(speed.vxMetersPerSecond / 3, speed.omegaRadiansPerSecond);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -564,5 +627,26 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Pitch", this.gyro.getPitch());
     SmartDashboard.putNumber("Left Position", this.getLeftPosition());
     SmartDashboard.putNumber("Right Position", this.getRightPosition());
+
+    SmartDashboard.putNumber("Left Velocity", this.getLeftVelocity());
+    SmartDashboard.putNumber("Right Velocity", this.getRightVelocity());
+
+    SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocity());
+    SmartDashboard.putNumber("Rotational Velocity", this.getTurnRateRad());
+
+    SmartDashboard.putNumber("Velocity Conversion", this.leftEncoder.getVelocityConversionFactor());
+
+    odometry.update(
+        gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition());
+  }
+
+  public Pose2d getPose() {
+    return odometry.getPoseMeters();
+  }
+
+  public void resetPose(Pose2d pose) {
+    resetEncoders();
+    odometry.resetPosition(
+        gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), pose);
   }
 }

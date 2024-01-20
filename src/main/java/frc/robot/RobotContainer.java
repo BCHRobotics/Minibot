@@ -11,6 +11,9 @@ import frc.robot.Constants.PERIPHERALS;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Mechanism;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 // Import required libraries
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -53,7 +56,7 @@ public class RobotContainer {
   // mechanism);
 
   // A chooser for autonomous commands
-  SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
     // Set default commands
@@ -66,19 +69,8 @@ public class RobotContainer {
 
     configureBindings();
 
-    // Add commands to the autonomous command chooser
-    this.autoChooser.setDefaultOption("Drive Back", driveBackAuto);
-    this.autoChooser.addOption("Balance Forward", balanceAuto);
-    this.autoChooser.addOption("Score Two", scoreTwoAuto);
-    this.autoChooser.addOption("Score Cone Mid", scoreConeMid);
-    this.autoChooser.addOption("Score Cube Mid", scoreCubeMid);
-    this.autoChooser.addOption("Score Cube High", scoreCubeHigh);
-    this.autoChooser.addOption("Score and Balance", scoreAndBalance);
-    this.autoChooser.addOption("Score Mid and Balance", scoreMidAndBalance);
-    this.autoChooser.addOption("Score High and Balance", scoreHighAndBalance);
-    // this.autoChooser.addOption("Mobile Balance", mobileBalance);
-
-    SmartDashboard.putData("Autonomous Route", this.autoChooser);
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -164,6 +156,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return this.autoChooser.getSelected();
+    return autoChooser.getSelected();
   }
 }
