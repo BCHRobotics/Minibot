@@ -64,6 +64,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    this.robotContainer.resetHeading();
+    this.robotContainer.resetPosition();
   }
 
   @Override
@@ -92,9 +94,6 @@ public class Robot extends TimedRobot {
     }
     this.robotContainer.CHASSIS_RESET().schedule();
     this.robotContainer.ARM_RESET().schedule();
-
-    this.robotContainer.resetHeading();
-    this.robotContainer.resetPosition();
   }
 
   /** This function is called periodically during operator control. */

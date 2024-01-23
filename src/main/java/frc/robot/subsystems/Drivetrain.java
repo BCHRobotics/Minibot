@@ -19,6 +19,8 @@ import com.revrobotics.SparkPIDController.AccelStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -427,7 +429,6 @@ public class Drivetrain extends SubsystemBase {
    */
   private void setMaxOutput(double maxOutput) {
     this.drive.setMaxOutput(maxOutput);
-    SmartDashboard.putNumber("Max Drive Speed %", maxOutput * 100);
   }
 
   /**
@@ -588,9 +589,10 @@ public class Drivetrain extends SubsystemBase {
    * They might also be PID problems.
    */
   public void setChassisSpeeds(ChassisSpeeds speed) {
-    double linearSpeed = MathUtil.clamp(speed.vxMetersPerSecond / 3.5, -1, 1);
+    double linearSpeed = speed.vxMetersPerSecond;
     double rotSpeed = speed.omegaRadiansPerSecond;
-    arcadeDrive(linearSpeed, rotSpeed);
+    //dividing by 3.4 because that's more or less the maximum speed of the robot
+    arcadeDrive(linearSpeed / 3.4, rotSpeed);
   }
 
   /* Gets the position of the robot via pose2d
@@ -608,10 +610,10 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /* Resets the position of the robot to 0, 0
-  * TODO: Find a beter way to do this
   */
-  public void resetXY() {
-    resetPose(new Pose2d());
+  public void resetFieldPosition() {
+    resetEncoders();
+    odometry.resetPosition(new Rotation2d(0, 0), 0, 0, new Pose2d(new Translation2d(0, 0), new Rotation2d(0, 0)));
   }
 
   @Override
@@ -629,20 +631,19 @@ public class Drivetrain extends SubsystemBase {
   */
   public void printToDashBoard() {
     SmartDashboard.putNumber("Pitch", this.gyro.getPitch());
-    SmartDashboard.putNumber("Left Position", this.getLeftPositionMeters());
-    SmartDashboard.putNumber("Right Position", this.getRightPositionMeters());
-
-    SmartDashboard.putNumber("Left Velocity", this.getLeftVelocityMeters());
-    SmartDashboard.putNumber("Right Velocity", this.getRightVelocityMeters());
+    SmartDashboard.putNumber("Left Encoder Position", this.getLeftPositionMeters());
+    SmartDashboard.putNumber("Right Encoder Position", this.getRightPositionMeters());
+  
+    SmartDashboard.putNumber("Left Encoder Velocity", this.getLeftVelocityMeters());
+    SmartDashboard.putNumber("Right Encoder Velocity", this.getRightVelocityMeters());
 
     SmartDashboard.putNumber("Forward Velocity", this.getAverageVelocityMeters());
     SmartDashboard.putNumber("Rotational Velocity", this.getTurnRateRad());
 
-    SmartDashboard.putNumber("Velocity Conversion", this.leftEncoder.getVelocityConversionFactor());
     SmartDashboard.putNumber("Heading", this.getHeadingDeg());
 
-    SmartDashboard.putNumber("X position", this.getPose().getX());
-    SmartDashboard.putNumber("Y position", this.getPose().getY());
+    SmartDashboard.putNumber("X Position", this.getPose().getX());
+    SmartDashboard.putNumber("Y Position", this.getPose().getY());
   }
 
   /**

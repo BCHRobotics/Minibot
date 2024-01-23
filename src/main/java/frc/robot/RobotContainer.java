@@ -166,9 +166,9 @@ public class RobotContainer {
   }
 
   /*
-   * Resets the position of the robot
+   * Resets the field relative position of the robot
    */
   public void resetPosition() {
-    this.drivetrain.resetXY();
+    this.drivetrain.resetFieldPosition();
   }
 }
