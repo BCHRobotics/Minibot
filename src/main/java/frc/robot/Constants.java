@@ -151,6 +151,7 @@ public final class Constants {
   public static final class PERIPHERALS {
     public static final int DRIVER_PORT = 0;
     public static final int OPERATOR_PORT = 1;
+    public static final int THIRD_PORT = 3;
     public static final double CONTROLLER_DEADBAND = 0.1;
   }
 

@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,6 +41,7 @@ public class RobotContainer {
   // The driver's controller
   CommandXboxController driverController = new CommandXboxController(PERIPHERALS.DRIVER_PORT);
   CommandXboxController operatorController = new CommandXboxController(PERIPHERALS.OPERATOR_PORT);
+  CommandXboxController thirdController = new CommandXboxController(PERIPHERALS.THIRD_PORT);
 
   private final Command scoreGamePiece = Autos.automatedScoringCommand(drivetrain, mechanism);
 
@@ -93,6 +95,8 @@ public class RobotContainer {
         .whileTrue(this.drivetrain.enableBrakeMode()
             .andThen(this.drivetrain.emergencyStop()))
         .onFalse(this.drivetrain.releaseBrakeMode());
+      
+    
 
     // Driver automated routines
     this.driverController.a().whileTrue(this.drivetrain.seekTarget())
@@ -125,6 +129,11 @@ public class RobotContainer {
         .onFalse(this.mechanism.setCubeLED(false));
     this.operatorController.rightBumper().whileTrue(this.mechanism.blinkConeLED())
         .onFalse(this.mechanism.setConeLED(false));
+
+        thirdController.x().whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        thirdController.y().whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        thirdController.a().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        thirdController.b().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**

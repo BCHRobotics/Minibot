@@ -5,6 +5,11 @@
 package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.MutableMeasure.mutable;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -23,8 +28,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -32,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CHASSIS;
 import frc.robot.Constants.MISC;
 import frc.robot.Constants.PERIPHERALS;
@@ -674,4 +686,83 @@ public class Drivetrain extends SubsystemBase {
   private void searchForCone() {
     this.limelight.setDesiredTarget(TARGET_TYPE.CONE);
   }
+
+  //______________________________________________________________________________________________________
+
+  //SysId
+
+  // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+  private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+  // Create a new SysId routine for characterizing the drive.
+
+private SysIdRoutine newSysId(){
+   final SysIdRoutine m_sysIdRoutine =
+      new SysIdRoutine(
+          // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              // Tell SysId how to plumb the driving voltage to the motors.
+              (Measure<Voltage> volts) -> {
+                frontLeftMotor.setVoltage(volts.in(Volts));
+                frontRightMotor.setVoltage(volts.in(Volts));
+              },
+              // Tell SysId how to record a frame of data for each motor on the mechanism being
+              // characterized.
+              log -> {
+                // Record a frame for the front left motor.  Since these share an encoder, we consider
+                // the entire group to be one motor.
+                log.motor("drive-front-left")
+                    .voltage(
+                        m_appliedVoltage.mut_replace(
+                            frontLeftMotor.get() * RobotController.getBatteryVoltage(), Volts))
+                    .linearPosition(m_distance.mut_replace(getDistanceTravelled(leftEncoder), Meters))
+                    .linearVelocity(
+                        m_velocity.mut_replace(getRelativeRate(leftEncoder), MetersPerSecond));
+                // Record a frame for the front right motors.  Since these share an encoder, we consider
+                // the entire group to be one motor.
+                log.motor("drive-front-right")
+                    .voltage(
+                        m_appliedVoltage.mut_replace(
+                            frontRightMotor.get() * RobotController.getBatteryVoltage(), Volts))
+                    .linearPosition(m_distance.mut_replace(getDistanceTravelled(rightEncoder), Meters))
+                    .linearVelocity(
+                        m_velocity.mut_replace(getRelativeRate(rightEncoder), MetersPerSecond));
+              },
+              // Tell SysId to make generated commands require this subsystem, suffix test state in
+              // WPILog with this subsystem's name ("drive")
+              this));
+              
+              // Returns sysIdRoutine
+              return m_sysIdRoutine;
+}
+
+            private double getDistanceTravelled(RelativeEncoder m_encoder){
+              double m_wheelCircumference = Math.PI * 6.0;
+              double m_distancePerCount = m_wheelCircumference / 8192.0;
+              double m_encoderCounts = m_encoder.getPosition(); // Get the current encoder position
+              return m_encoderCounts * m_distancePerCount;
+            }
+              
+            private double getRelativeRate(RelativeEncoder m_encoder) {
+               double rpm = m_encoder.getVelocity(); // Get the RPM from the encoder
+               double distancePerMinute = rpm * Math.PI * 6.0;
+               double distancePerSecond = distancePerMinute / 60.0;
+               return distancePerSecond;
+            }
+    
+            public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+              SmartDashboard.putBoolean("running Quasustatic: ", true);
+
+              return newSysId().quasistatic(direction);
+            }
+          
+            public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+              SmartDashboard.putBoolean("running Dynamic: ", true);
+              return newSysId().dynamic(direction);
+            }
+  
 }
