@@ -57,8 +57,6 @@ public class Drivetrain extends SubsystemBase {
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final CANSparkMax frontLeftMotor;
   private final CANSparkMax frontRightMotor;
-  private final CANSparkMax backLeftMotor;
-  private final CANSparkMax backRightMotor;
 
   private final RelativeEncoder leftEncoder;
   private final RelativeEncoder rightEncoder;
@@ -79,29 +77,18 @@ public class Drivetrain extends SubsystemBase {
 
     this.frontLeftMotor = new CANSparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
     this.frontRightMotor = new CANSparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
-    this.backLeftMotor = new CANSparkMax(CHASSIS.BACK_LEFT_ID, MotorType.kBrushless);
-    this.backRightMotor = new CANSparkMax(CHASSIS.BACK_RIGHT_ID, MotorType.kBrushless);
 
     this.frontLeftMotor.restoreFactoryDefaults();
     this.frontRightMotor.restoreFactoryDefaults();
-    this.backLeftMotor.restoreFactoryDefaults();
-    this.backRightMotor.restoreFactoryDefaults();
 
     this.frontLeftMotor.setIdleMode(IdleMode.kCoast);
     this.frontRightMotor.setIdleMode(IdleMode.kCoast);
-    this.backLeftMotor.setIdleMode(IdleMode.kCoast);
-    this.backRightMotor.setIdleMode(IdleMode.kCoast);
 
     this.frontLeftMotor.setSmartCurrentLimit(60, 20);
     this.frontRightMotor.setSmartCurrentLimit(60, 20);
-    this.backLeftMotor.setSmartCurrentLimit(60, 20);
-    this.backRightMotor.setSmartCurrentLimit(60, 20);
 
     this.frontLeftMotor.setInverted(CHASSIS.INVERTED);
     this.frontRightMotor.setInverted(!CHASSIS.INVERTED);
-
-    this.backLeftMotor.follow(this.frontLeftMotor);
-    this.backRightMotor.follow(this.frontRightMotor);
 
     this.leftEncoder = this.frontLeftMotor.getEncoder();
     this.rightEncoder = this.frontRightMotor.getEncoder();
@@ -350,8 +337,6 @@ public class Drivetrain extends SubsystemBase {
   private void setBrakeMode(IdleMode idleMode) {
     this.frontLeftMotor.setIdleMode(idleMode);
     this.frontRightMotor.setIdleMode(idleMode);
-    this.backLeftMotor.setIdleMode(idleMode);
-    this.backRightMotor.setIdleMode(idleMode);
     this.pushControllerUpdate();
     SmartDashboard.putBoolean("Brake Mode", idleMode == IdleMode.kBrake);
   }
@@ -373,8 +358,6 @@ public class Drivetrain extends SubsystemBase {
   private void setRampRate(boolean state) {
     this.frontLeftMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
     this.frontRightMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
-    this.backLeftMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
-    this.backRightMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
     this.pushControllerUpdate();
     SmartDashboard.putBoolean("Ramping", state);
   }
@@ -386,8 +369,6 @@ public class Drivetrain extends SubsystemBase {
     return startEnd(() -> {
       this.frontLeftMotor.disable();
       this.frontRightMotor.disable();
-      this.backLeftMotor.disable();
-      this.backRightMotor.disable();
     }, this::releaseBrakeMode)
         .beforeStarting(this::enableBrakeMode)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
@@ -399,8 +380,6 @@ public class Drivetrain extends SubsystemBase {
   public void killSwitch() {
     this.frontLeftMotor.disable();
     this.frontRightMotor.disable();
-    this.backLeftMotor.disable();
-    this.backRightMotor.disable();
     this.setBrakeMode(IdleMode.kBrake);
   }
 
@@ -537,8 +516,6 @@ public class Drivetrain extends SubsystemBase {
   private void pushControllerUpdate() {
     this.frontLeftMotor.burnFlash();
     this.frontRightMotor.burnFlash();
-    this.backLeftMotor.burnFlash();
-    this.backRightMotor.burnFlash();
   }
 
   /**
@@ -657,36 +634,6 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("X Position", this.getPose().getX());
     SmartDashboard.putNumber("Y Position", this.getPose().getY());
   }
-
-  /**
-   * Sets the limelight target to search for reflective
-   * tape.
-   */
-  private void searchForTape() {
-    this.limelight.setDesiredTarget(TARGET_TYPE.REFLECTIVE_TAPE);
-  }
-
-  /**
-   * Sets the limelight target to search for april tags.
-   */
-  private void searchForTags() {
-    this.limelight.setDesiredTarget(TARGET_TYPE.APRILTAG);
-  }
-
-  /**
-   * Sets the limelight target to search for cube.
-   */
-  private void searchForCube() {
-    this.limelight.setDesiredTarget(TARGET_TYPE.CUBE);
-  }
-
-  /**
-   * Sets the limelight target to search for cone.
-   */
-  private void searchForCone() {
-    this.limelight.setDesiredTarget(TARGET_TYPE.CONE);
-  }
-
   //______________________________________________________________________________________________________
 
   //SysId

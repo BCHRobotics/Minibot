@@ -22,13 +22,14 @@ import frc.robot.util.control.SparkMaxConstants;
  */
 public final class Constants {
   public static final class CHASSIS {
-    public static final int FRONT_LEFT_ID = 10;
+    // THESE CAN IDs are for JERRY
+    public static final int FRONT_LEFT_ID = 13;
     public static final int FRONT_RIGHT_ID = 11;
-    public static final int BACK_LEFT_ID = 12;
-    public static final int BACK_RIGHT_ID = 13;
+    //public static final int BACK_LEFT_ID = 12;
+    //public static final int BACK_RIGHT_ID = 13;
 
     // Drivetrain restrictions
-    public static final double DEFAULT_OUTPUT = 0.7;
+    public static final double DEFAULT_OUTPUT = 0.3;
     public static final double MAX_INTERVAL = 1 - DEFAULT_OUTPUT;
     public static final double MIN_INTERVAL = DEFAULT_OUTPUT - 0.2;
     public static final double RAMP_RATE = 0.15; // s
@@ -36,10 +37,11 @@ public final class Constants {
     public static final boolean INVERTED = false;
 
     // Chassis dimensions needed
-    public static final double WHEEL_DIAMETER = 6;
+    // MEASURE THESE FOR JERRY
+    public static final double WHEEL_DIAMETER = 4;
     public static final double GEAR_RATIO = 7.2;
     // public static final double TRACK_WIDTH = 19; // Measured [Inches]
-    public static final double TRACK_WIDTH = 24; // Effective [Inches]
+    public static final double TRACK_WIDTH = 12; // Effective [Inches]
 
     // Chasis conversion factors TODO: Re-collect conversion data
     public static final double LEFT_POSITION_CONVERSION = 48 / 18.23804473876953; // inches / revs
@@ -99,9 +101,9 @@ public final class Constants {
 
   public static final class MECHANISM {
     // Robot arm CAN IDs
-    public static final int SHOULDER_ID = 20;
-    public static final int WRIST_ID = 21;
-    public static final int CLAW_ID = 22;
+    // public static final int SHOULDER_ID = 20;
+    // public static final int WRIST_ID = 21;
+    // public static final int CLAW_ID = 22;
 
     // Robot dimensions (inches)
     public static final double SHOULDER_HEIGHT = 36.75;
