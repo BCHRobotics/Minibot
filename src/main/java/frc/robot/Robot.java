@@ -66,7 +66,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    this.robotContainer.resetHeading();
     this.robotContainer.resetPosition();
   }
 
@@ -87,6 +86,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    this.robotContainer.resetHeading();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

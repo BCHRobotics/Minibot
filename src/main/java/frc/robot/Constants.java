@@ -34,14 +34,13 @@ public final class Constants {
     public static final double MIN_INTERVAL = DEFAULT_OUTPUT - 0.2;
     public static final double RAMP_RATE = 0.15; // s
     public static final double TOLERANCE = 1; // in
-    public static final boolean INVERTED = false;
+    public static final boolean INVERTED = true;
 
     // Chassis dimensions needed
-    // MEASURE THESE FOR JERRY
+    // THESE ARE FOR JERRY
     public static final double WHEEL_DIAMETER = 4;
-    public static final double GEAR_RATIO = 7.2;
-    // public static final double TRACK_WIDTH = 19; // Measured [Inches]
-    public static final double TRACK_WIDTH = 12; // Effective [Inches]
+    public static final double GEAR_RATIO = 5.15;
+    public static final double TRACK_WIDTH = 12;
 
     // Chasis conversion factors TODO: Re-collect conversion data
     public static final double LEFT_POSITION_CONVERSION = 48 / 18.23804473876953; // inches / revs

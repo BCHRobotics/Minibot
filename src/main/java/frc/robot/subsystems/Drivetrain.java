@@ -390,7 +390,8 @@ public class Drivetrain extends SubsystemBase {
    * @param rot     rotational motion [-1 --> 1] (Left --> Right)
    */
   private void arcadeDrive(double forward, double rot) {
-    this.drive.arcadeDrive(forward, rot);
+    // Decreasing the drive command for safety
+    this.drive.arcadeDrive(forward * 0.5, rot * 0.5);
   }
 
   /**
@@ -614,6 +615,7 @@ public class Drivetrain extends SubsystemBase {
         gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
 
     printToDashBoard();
+    System.out.println(getHeadingDeg());
   }
 
   /* Prints all values to the dashboard.
