@@ -29,7 +29,7 @@ public final class Constants {
     //public static final int BACK_RIGHT_ID = 13;
 
     // Drivetrain restrictions
-    public static final double DEFAULT_OUTPUT = 0.3;
+    public static final double DEFAULT_OUTPUT = 1; // THIS MUST REMAIN 1 FOR AUTOS
     public static final double MAX_INTERVAL = 1 - DEFAULT_OUTPUT;
     public static final double MIN_INTERVAL = DEFAULT_OUTPUT - 0.2;
     public static final double RAMP_RATE = 0.15; // s
@@ -39,7 +39,7 @@ public final class Constants {
     // Chassis dimensions needed
     // THESE ARE FOR JERRY
     public static final double WHEEL_DIAMETER = 4;
-    public static final double GEAR_RATIO = 5.15;
+    public static final double GEAR_RATIO = 7.2;
     public static final double TRACK_WIDTH = 12;
 
     // Chasis conversion factors TODO: Re-collect conversion data

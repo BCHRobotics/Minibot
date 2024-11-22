@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.528948516329338,
-      "y": 7.136823014738666
+      "x": 1.4174820372432768,
+      "y": 5.531335051274091
     },
     "rotation": 0
   },
@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path 2"
+            "pathName": "Straight Line"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Curve"
           }
         }
       ]

@@ -10,10 +10,13 @@ import frc.robot.Constants.MECHANISM;
 import frc.robot.Constants.PERIPHERALS;
 import frc.robot.subsystems.Drivetrain;
 
+import java.util.function.DoubleSupplier;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.networktables.DoubleSubscriber;
 // Import required libraries
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,17 +48,27 @@ public class RobotContainer {
   public RobotContainer() {
     // Set default commands
 
+    DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.2);
+    DoubleSupplier xCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.2);
+
     // Control the drive with split-stick arcade controls
     this.drivetrain.setDefaultCommand(
         this.drivetrain.arcadeDriveCommand(
-            () -> -this.driverController.getLeftY(), () -> -this.driverController.getRightX(),
+            yCommand, xCommand,
             () -> this.driverController.getLeftTriggerAxis(), () -> this.driverController.getRightTriggerAxis()));
 
     configureBindings();
+    configureNamedCommands();
 
     //building the auto chooser for pathplanner
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+  }
+
+  /*
+   * Used for confirming named commands for pathplanner
+   */
+  public void configureNamedCommands() {
   }
 
   /**
@@ -89,6 +102,10 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(this.drivetrain::resetLimelight));
     this.driverController.y().whileTrue(this.drivetrain.balance());
     this.driverController.b().onTrue(Commands.runOnce(this.drivetrain::resetEncoders));
+  }
+
+  public double adjustJoystickInput(DoubleSupplier input, double scale) {
+      return input.getAsDouble() * scale;
   }
 
   /**

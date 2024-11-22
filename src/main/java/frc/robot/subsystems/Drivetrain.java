@@ -54,7 +54,6 @@ import frc.robot.util.devices.Gyro;
 import frc.robot.util.devices.Limelight;
 
 public class Drivetrain extends SubsystemBase {
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final CANSparkMax frontLeftMotor;
   private final CANSparkMax frontRightMotor;
 
@@ -67,8 +66,6 @@ public class Drivetrain extends SubsystemBase {
   private final DifferentialDrive drive;
 
   private final Gyro gyro;
-  private final Limelight limelight;
-  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
 
   private final DifferentialDriveOdometry odometry;
 
@@ -109,9 +106,6 @@ public class Drivetrain extends SubsystemBase {
     this.rightMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
 
     this.gyro = Gyro.getInstance();
-    this.limelight = Limelight.getInstance();
-    this.limelight.setDesiredTarget(TARGET_TYPE.REFLECTIVE_TAPE);
-    this.limelight.setLedMode(1);
 
     this.odometry = new DifferentialDriveOdometry(
       gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
@@ -183,114 +177,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Uses PID along with limelight data to turn to target
-   */
-  public Command balance() {
-    return new PIDCommand(
-        new PIDController(
-            CHASSIS.BALANCE_CONSTANTS.kP,
-            CHASSIS.BALANCE_CONSTANTS.kI,
-            CHASSIS.BALANCE_CONSTANTS.kD),
-        // Close the loop on the turn rate
-        this.gyro::getPitch,
-        // Setpoint is 0
-        0.7,
-        // Pipe the output to the turning controls
-        (output) -> this
-            .driveStraight(
-                output > 0 ? (output + CHASSIS.BALANCE_CONSTANTS.kFF) : (output - CHASSIS.BALANCE_CONSTANTS.kFF)),
-
-        // Require the robot drive
-        this)
-        .andThen(this::emergencyStop)
-        .beforeStarting(this::enableBrakeMode)
-        .beforeStarting(this::disableRampRate);
-  }
-
-  /**
-   * Uses PID along with limelight data to turn to target
-   */
-  public Command getColor() {
-    Color detectedColor = m_colorSensor.getColor();
-
-    return run(() -> {
-      this.m_colorSensor.getColor();
-      SmartDashboard.putNumber("Red", detectedColor.red);
-      SmartDashboard.putNumber("Green", detectedColor.green);
-      SmartDashboard.putNumber("Blue", detectedColor.green);
-
-    });
-  }
-
-  public Command goToTarget() {
-    return new PIDCommand(
-        new PIDController(
-            CHASSIS.TARGET_CONSTANTS.kP,
-            CHASSIS.TARGET_CONSTANTS.kI,
-            CHASSIS.TARGET_CONSTANTS.kD),
-        // Close the loop on the turn rate
-        this.limelight::getTargetY,
-        // Setpoint is 0
-        0,
-        // Pipe the output to the turning controls
-        (output) -> this
-            .driveStraight(
-                -(output > 0 ? (output + CHASSIS.TARGET_CONSTANTS.kFF) : (output - CHASSIS.TARGET_CONSTANTS.kFF))),
-        // Require the robot drive
-        this)
-        // .until(this::reachedTarget)
-        .andThen(this::emergencyStop)
-        .until(() -> {
-          return this.limelight.getTargetY() <= VISION.LIMELIGHT_TOLERANCE
-              && this.limelight.getTargetY() >= -VISION.LIMELIGHT_TOLERANCE;
-        })
-        .beforeStarting(this::enableBrakeMode)
-        .beforeStarting(this::disableRampRate)
-        .beforeStarting(() -> this.limelight.setLedMode(3))
-        .andThen(this::resetLimelight);
-  }
-
-  /**
-   * Returns whether or not the robot has reached the limelight target
-   */
-  public boolean reachedTarget() {
-    return MISC.WITHIN_TOLERANCE(this.limelight.getTargetY(), 0, VISION.LIMELIGHT_TOLERANCE);
-  }
-
-  /**
-   * Uses PID along with limelight data to turn to target
-   */
-  public Command seekTarget() {
-    return new PIDCommand(
-        new PIDController(
-            CHASSIS.SEEK_CONSTANTS.kP,
-            CHASSIS.SEEK_CONSTANTS.kI,
-            CHASSIS.SEEK_CONSTANTS.kD),
-        // Close the loop on the turn rate
-        this.limelight::getTargetX,
-        // Setpoint is 0
-        0,
-        // Pipe the output to the turning controls
-        (output) -> this
-            .turn(output > 0 ? (output + CHASSIS.SEEK_CONSTANTS.kFF) : (output - CHASSIS.SEEK_CONSTANTS.kFF)),
-        // Require the robot drive
-        this)
-        // .until(this::alignedTarget)
-        .andThen(() -> this.emergencyStop().schedule())
-        .beforeStarting(this.enableBrakeMode())
-        .beforeStarting(this.disableRampRate())
-        .beforeStarting(() -> this.limelight.setLedMode(3))
-        .andThen(this::resetLimelight);
-  }
-
-  /**
-   * Returns whether or not the robot has aligned with the limelight target
-   */
-  public boolean alignedTarget() {
-    return MISC.WITHIN_TOLERANCE(this.limelight.getTargetX(), 0, VISION.LIMELIGHT_TOLERANCE);
-  }
-
-  /**
    * Uses PID along with gyro data to turn to a provided heading
    */
   public Command turnToGyro(double angle) {
@@ -311,10 +197,6 @@ public class Drivetrain extends SubsystemBase {
         .andThen(() -> this.emergencyStop().schedule())
         .beforeStarting(this.enableBrakeMode())
         .beforeStarting(this.disableRampRate());
-  }
-
-  public void resetLimelight() {
-    this.limelight.setLedMode(1);
   }
 
   /**
@@ -391,7 +273,7 @@ public class Drivetrain extends SubsystemBase {
    */
   private void arcadeDrive(double forward, double rot) {
     // Decreasing the drive command for safety
-    this.drive.arcadeDrive(forward * 0.5, rot * 0.5);
+    this.drive.arcadeDrive(forward, rot);
   }
 
   /**
@@ -615,7 +497,7 @@ public class Drivetrain extends SubsystemBase {
         gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
 
     printToDashBoard();
-    System.out.println(getHeadingDeg());
+    //System.out.println(getHeadingDeg());
   }
 
   /* Prints all values to the dashboard.
