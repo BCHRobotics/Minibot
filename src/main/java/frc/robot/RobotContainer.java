@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import frc.robot.Commands.AlignToHeadingCommand;
 // Import required modules
 import frc.robot.Commands.Autos;
+import frc.robot.Commands.TeleopDriveCommand;
 import frc.robot.Constants.MECHANISM;
 import frc.robot.Constants.PERIPHERALS;
 import frc.robot.subsystems.Drivetrain;
@@ -48,14 +50,18 @@ public class RobotContainer {
   public RobotContainer() {
     // Set default commands
 
-    DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.2);
-    DoubleSupplier xCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.2);
+    DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.4);
+    DoubleSupplier xCommand = () -> adjustJoystickInput(() -> -this.driverController.getRightX(), 0.4);
 
-    // Control the drive with split-stick arcade controls
+    //Control the drive with split-stick arcade controls
     this.drivetrain.setDefaultCommand(
-        this.drivetrain.arcadeDriveCommand(
+        new TeleopDriveCommand(
             yCommand, xCommand,
-            () -> this.driverController.getLeftTriggerAxis(), () -> this.driverController.getRightTriggerAxis()));
+            () -> this.driverController.getLeftTriggerAxis(), () -> this.driverController.getRightTriggerAxis(), drivetrain));
+
+    // this.drivetrain.setDefaultCommand(
+    //     this.drivetrain.alignToHeadingCommand(
+    //         () -> this.drivetrain.getHeadingDeg(), () -> this.drivetrain.getDesiredHeading()));
 
     configureBindings();
     configureNamedCommands();
@@ -84,24 +90,9 @@ public class RobotContainer {
    */
   public void configureBindings() {
 
-    // Driver braking and emergency stop controls
-    this.driverController.rightBumper().or(this.driverController.y())
-        .onTrue(this.drivetrain.enableBrakeMode()).onFalse(this.drivetrain.releaseBrakeMode());
-
-    this.driverController.leftBumper()
-        .whileTrue(this.drivetrain.enableBrakeMode()
-            .andThen(this.drivetrain.emergencyStop()))
-        .onFalse(this.drivetrain.releaseBrakeMode());
-      
-    
-
-    // Driver automated routines
-    this.driverController.a().whileTrue(this.drivetrain.seekTarget())
-        .onFalse(Commands.runOnce(this.drivetrain::resetLimelight));
-    this.driverController.x().whileTrue(this.drivetrain.goToTarget())
-        .onFalse(Commands.runOnce(this.drivetrain::resetLimelight));
-    this.driverController.y().whileTrue(this.drivetrain.balance());
-    this.driverController.b().onTrue(Commands.runOnce(this.drivetrain::resetEncoders));
+    // [Test] Align to heading of 90 when right bumper is pressed
+    // this.driverController.rightBumper().onTrue(
+    //   new AlignToHeadingCommand(null, null, null, null, drivetrain));
   }
 
   public double adjustJoystickInput(DoubleSupplier input, double scale) {

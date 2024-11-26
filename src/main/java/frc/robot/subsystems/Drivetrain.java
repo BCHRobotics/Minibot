@@ -34,24 +34,18 @@ import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CHASSIS;
-import frc.robot.Constants.MISC;
-import frc.robot.Constants.PERIPHERALS;
-import frc.robot.Constants.VISION;
-import frc.robot.Constants.VISION.TARGET_TYPE;
+import frc.robot.Constants.DriveMode;
 import frc.robot.util.control.SparkMaxPID;
 import frc.robot.util.devices.Gyro;
-import frc.robot.util.devices.Limelight;
 
 public class Drivetrain extends SubsystemBase {
   private final CANSparkMax frontLeftMotor;
@@ -68,6 +62,8 @@ public class Drivetrain extends SubsystemBase {
   private final Gyro gyro;
 
   private final DifferentialDriveOdometry odometry;
+
+  private DriveMode driveMode = DriveMode.MANUAL;
 
   /** Creates a new Drive subsystem. */
   public Drivetrain() {
@@ -134,25 +130,32 @@ public class Drivetrain extends SubsystemBase {
         );
   }
 
+  // Very important drive mode functions that make everything work
+  public DriveMode getDriveMode() {
+    return driveMode;
+  }
+
+  public void setDriveMode(DriveMode modeToSet) {
+    driveMode = modeToSet;
+  }
+
+  public void setDeadband(double deadband) {
+    this.drive.setDeadband(deadband);
+  }
+
   /**
-   * Returns a command that drives the robot with arcade controls.
-   *
-   * @param fwd the commanded forward movement
-   * @param rot the commanded rotation
-   * @param min the commanded snail percentage
-   * @param max the commanded turbo percentage
+   * Command to turn the robot to a heading
    */
-  public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot,
-      DoubleSupplier min, DoubleSupplier max) {
+  public Command alignToHeadingCommand(DoubleSupplier current, DoubleSupplier desired) {
     return runOnce(() -> {
-      this.setMaxOutput(CHASSIS.DEFAULT_OUTPUT + (max.getAsDouble() * CHASSIS.MAX_INTERVAL)
-          - (min.getAsDouble() * CHASSIS.MIN_INTERVAL));
-      this.arcadeDrive(fwd.getAsDouble(), (rot.getAsDouble() * 0.9));
+      this.arcadeDrive(0, Math.min((Rotation2d.fromDegrees(desired.getAsDouble()).minus(Rotation2d.fromDegrees(current.getAsDouble())).getDegrees()) * 0.02, 0.1));
     })
-        .beforeStarting(() -> this.drive.setDeadband(PERIPHERALS.CONTROLLER_DEADBAND))
-        .beforeStarting(this.enableRampRate())
         .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
-        .withName("arcadeDrive");
+        .withName("headingAlign");
+  }
+
+  public double getDesiredHeading() {
+    return 90;
   }
 
   /**
@@ -163,8 +166,8 @@ public class Drivetrain extends SubsystemBase {
       this.setPosition(leftPos, rightPos);
     })
         .until(this::reachedPosition)
-        .beforeStarting(this.enableBrakeMode())
-        .beforeStarting(this.disableRampRate())
+        .beforeStarting(() -> this.setBrakeMode(IdleMode.kBrake))
+        .beforeStarting(() -> this.setRampRate(false))
         .withName("positionDrive");
   }
 
@@ -195,53 +198,39 @@ public class Drivetrain extends SubsystemBase {
         // Require the robot drive
         this)
         .andThen(() -> this.emergencyStop().schedule())
-        .beforeStarting(this.enableBrakeMode())
-        .beforeStarting(this.disableRampRate());
-  }
-
-  /**
-   * Returns a command that enables brake mode on the drivetrain.
-   */
-  public Command enableBrakeMode() {
-    return runOnce(() -> this.setBrakeMode(IdleMode.kBrake));
-  }
-
-  /**
-   * Returns a command that release brake mode on the drivetrain.
-   */
-  public Command releaseBrakeMode() {
-    return runOnce(() -> this.setBrakeMode(IdleMode.kCoast));
+        .beforeStarting(() -> this.setBrakeMode(IdleMode.kBrake))
+        .beforeStarting(() -> this.setRampRate(false));
   }
 
   /**
    * sets the chassis brake mode
    */
-  private void setBrakeMode(IdleMode idleMode) {
+  public void setBrakeMode(IdleMode idleMode) {
     this.frontLeftMotor.setIdleMode(idleMode);
     this.frontRightMotor.setIdleMode(idleMode);
     this.pushControllerUpdate();
     SmartDashboard.putBoolean("Brake Mode", idleMode == IdleMode.kBrake);
   }
 
-  /**
-   * Returns a command that enables ramp rate on the drivetrain.
-   */
-  public Command enableRampRate() {
-    return runOnce(() -> this.setRampRate(true));
+  public Command releaseBrakeMode() {
+    return runOnce(() -> this.setBrakeMode(IdleMode.kCoast));
+  }
+  public Command enableBrakeMode() {
+    return runOnce(() -> this.setBrakeMode(IdleMode.kBrake));
   }
 
-  /**
-   * Returns a command that disables ramp rate on the drivetrain.
-   */
-  public Command disableRampRate() {
-    return runOnce(() -> this.setRampRate(false));
-  }
-
-  private void setRampRate(boolean state) {
+  public void setRampRate(boolean state) {
     this.frontLeftMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
     this.frontRightMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
     this.pushControllerUpdate();
     SmartDashboard.putBoolean("Ramping", state);
+  }
+
+  public Command enableRampRate() {
+    return runOnce(() -> this.setRampRate(true));
+  }
+  public Command disableRampRate() {
+    return runOnce(() -> this.setRampRate(false));
   }
 
   /**
@@ -271,19 +260,9 @@ public class Drivetrain extends SubsystemBase {
    * @param forward linear motion [-1 --> 1] (Backwards --> Forwards)
    * @param rot     rotational motion [-1 --> 1] (Left --> Right)
    */
-  private void arcadeDrive(double forward, double rot) {
+  public void arcadeDrive(double forward, double rot) {
     // Decreasing the drive command for safety
     this.drive.arcadeDrive(forward, rot);
-  }
-
-  /**
-   * Sets motor output using arcade drive controls
-   * 
-   * @param percent linear motion [-1 --> 1] (Backwards --> Forwards)
-   */
-  private void driveStraight(double percent) {
-    this.frontLeftMotor.set(percent);
-    this.frontRightMotor.set(percent);
   }
 
   /**
@@ -301,7 +280,7 @@ public class Drivetrain extends SubsystemBase {
    * 
    * @param maxOutput in percent decimal
    */
-  private void setMaxOutput(double maxOutput) {
+  public void setMaxOutput(double maxOutput) {
     this.drive.setMaxOutput(maxOutput);
   }
 
@@ -518,9 +497,12 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("X Position", this.getPose().getX());
     SmartDashboard.putNumber("Y Position", this.getPose().getY());
   }
-  //______________________________________________________________________________________________________
+
+
+
 
   //SysId
+  //______________________________________________________________________________________________________
 
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
   private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));

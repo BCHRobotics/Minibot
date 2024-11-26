@@ -21,6 +21,14 @@ import frc.robot.util.control.SparkMaxConstants;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  // Ways to drive the robot
+  public static enum DriveMode {
+    MANUAL,
+    HEADINGLOCK,
+    NOTEALIGN,
+    AMPALIGN,
+    SPEAKERALIGN;
+  }
   public static final class CHASSIS {
     // THESE CAN IDs are for JERRY
     public static final int FRONT_LEFT_ID = 13;
@@ -56,9 +64,10 @@ public final class Constants {
 
     // Drive PID Constants TODO: Re-tune Drivetrain PID
     public static final SparkMaxConstants LEFT_DRIVE_CONSTANTS = new SparkMaxConstants(
-        0.06, 0, 0.06, 0, 0, -1, 1, 0, 0, 4500, 1000, 0.01);
+      // Originally (before jerry) the kp was 0.06 - It was changed to reduce wild turning in auto
+        0.03, 0, 0.06, 0, 0, -1, 1, 0, 0, 4500, 1000, 0.01);
     public static final SparkMaxConstants RIGHT_DRIVE_CONSTANTS = new SparkMaxConstants(
-        0.06, 0, 0.06, 0, 0, -1, 1, 0, 0, 4500, 1000, 0.01);
+        0.03, 0, 0.06, 0, 0, -1, 1, 0, 0, 4500, 1000, 0.01);
 
     // Gyro constants
     public static final SerialPort.Port GYRO_PORT = SerialPort.Port.kMXP;
