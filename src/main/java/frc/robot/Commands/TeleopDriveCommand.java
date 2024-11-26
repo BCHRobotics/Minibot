@@ -39,8 +39,12 @@ public class TeleopDriveCommand extends Command {
 
     @Override
     public void initialize() {
-        // Set the drive mode
+        this.setName("arcadeDrive");
+       
         driveSubsystem.setDriveMode(DriveMode.MANUAL);
+        driveSubsystem.setDeadband(PERIPHERALS.CONTROLLER_DEADBAND);
+        driveSubsystem.setRampRate(true);
+        driveSubsystem.setBrakeMode(IdleMode.kBrake);
         
         // figure out what the hell withInterruptBehavior(InterruptionBehavior.kCancelSelf) does
 
@@ -50,12 +54,6 @@ public class TeleopDriveCommand extends Command {
 
     @Override
     public void execute() {
-        this.setName("arcadeDrive");
-
-        driveSubsystem.setDeadband(PERIPHERALS.CONTROLLER_DEADBAND);
-        driveSubsystem.setRampRate(true);
-        driveSubsystem.setBrakeMode(IdleMode.kBrake);
-        
         // TODO: set the max output of the drivetrain using min/max sourced from triggers
         driveSubsystem.setMaxOutput(CHASSIS.DEFAULT_OUTPUT + (maxOutput.getAsDouble() * CHASSIS.MAX_INTERVAL)
           - (minOutput.getAsDouble() * CHASSIS.MIN_INTERVAL));

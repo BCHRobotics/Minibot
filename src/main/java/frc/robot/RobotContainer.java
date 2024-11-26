@@ -50,8 +50,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Set default commands
 
-    DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.4);
-    DoubleSupplier xCommand = () -> adjustJoystickInput(() -> -this.driverController.getRightX(), 0.4);
+    DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.35);
+    DoubleSupplier xCommand = () -> adjustJoystickInput(() -> -this.driverController.getRightX(), 0.35);
 
     //Control the drive with split-stick arcade controls
     this.drivetrain.setDefaultCommand(
