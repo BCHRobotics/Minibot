@@ -1,8 +1,15 @@
-package frc.robot.Commands;
+package frc.robot.Commands.Pathing;
 
 import java.util.function.DoubleSupplier;
 
+import com.revrobotics.CANSparkBase.IdleMode;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.robot.Constants.CHASSIS;
 import frc.robot.Constants.DriveMode;
 import frc.robot.Constants.PERIPHERALS;
 import frc.robot.subsystems.Drivetrain;
@@ -14,7 +21,11 @@ public class AlignToHeadingCommand extends Command {
     DoubleSupplier currentHeading;
     DoubleSupplier desiredHeading;
 
+    PIDController rotationController;
+
     public AlignToHeadingCommand(DoubleSupplier current, DoubleSupplier desired, Drivetrain subsystem) {
+        rotationController = new PIDController(0.04, 0, 0);
+
         // Assign the variables that point to input values
         currentHeading = current;
         desiredHeading = desired;
@@ -26,11 +37,12 @@ public class AlignToHeadingCommand extends Command {
 
     @Override
     public void initialize() {
-        // Set the drive mode
-        driveSubsystem.setDriveMode(DriveMode.HEADINGLOCK);
+        this.setName("headingLock");
 
+        driveSubsystem.setDriveMode(DriveMode.HEADINGLOCK);
         driveSubsystem.setDeadband(PERIPHERALS.CONTROLLER_DEADBAND);
-        driveSubsystem.enableRampRate();
+        driveSubsystem.setRampRate(true);
+        driveSubsystem.setBrakeMode(IdleMode.kBrake);
 
         // Tell the driver that headinglock driving has been enabled
         System.out.println("HEADINGLOCK ON");
@@ -39,7 +51,10 @@ public class AlignToHeadingCommand extends Command {
     @Override
     public void execute() {
         // Turn the robot to a heading
-        
+        driveSubsystem.setMaxOutput(CHASSIS.DEFAULT_OUTPUT);
+
+        // Turn the robot using arcade drive function
+        driveSubsystem.arcadeDrive(0, MathUtil.clamp(rotationController.calculate(currentHeading.getAsDouble(), desiredHeading.getAsDouble()), -0.35, 0.35));
     }
 
     @Override
@@ -56,6 +71,6 @@ public class AlignToHeadingCommand extends Command {
     @Override
     public boolean isFinished() {
         // End if the drive mode is not headinglock
-        return driveSubsystem.getDriveMode() != DriveMode.HEADINGLOCK;
+        return (driveSubsystem.getDriveMode() != DriveMode.HEADINGLOCK) || Math.abs(currentHeading.getAsDouble() - desiredHeading.getAsDouble()) < 2;
     }
 }

@@ -5,43 +5,26 @@
 package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.MutableMeasure.mutable;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CHASSIS;
 import frc.robot.Constants.DriveMode;
 import frc.robot.util.control.SparkMaxPID;
@@ -179,28 +162,28 @@ public class Drivetrain extends SubsystemBase {
         this.rightMotorController.reachedSetpoint(this.getRightPositionInches(), CHASSIS.TOLERANCE);
   }
 
-  /**
-   * Uses PID along with gyro data to turn to a provided heading
-   */
-  public Command turnToGyro(double angle) {
-    return new PIDCommand(
-        new PIDController(
-            CHASSIS.ALIGN_CONSTANTS.kP,
-            CHASSIS.ALIGN_CONSTANTS.kI,
-            CHASSIS.ALIGN_CONSTANTS.kD),
-        // Close the loop on the turn rate
-        this.gyro::getYaw,
-        // Setpoint is 0
-        angle,
-        // Pipe the output to the turning controls
-        (output) -> this
-            .turn(output > 0 ? (output + CHASSIS.ALIGN_CONSTANTS.kFF) : (output - CHASSIS.ALIGN_CONSTANTS.kFF)),
-        // Require the robot drive
-        this)
-        .andThen(() -> this.emergencyStop().schedule())
-        .beforeStarting(() -> this.setBrakeMode(IdleMode.kBrake))
-        .beforeStarting(() -> this.setRampRate(false));
-  }
+  // /**
+  //  * Uses PID along with gyro data to turn to a provided heading
+  //  */
+  // public Command turnToGyro(double angle) {
+  //   return new PIDCommand(
+  //       new PIDController(
+  //           CHASSIS.ALIGN_CONSTANTS.kP,
+  //           CHASSIS.ALIGN_CONSTANTS.kI,
+  //           CHASSIS.ALIGN_CONSTANTS.kD),
+  //       // Close the loop on the turn rate
+  //       this.gyro::getYaw,
+  //       // Setpoint is 0
+  //       angle,
+  //       // Pipe the output to the turning controls
+  //       (output) -> this
+  //           .turn(output > 0 ? (output + CHASSIS.ALIGN_CONSTANTS.kFF) : (output - CHASSIS.ALIGN_CONSTANTS.kFF)),
+  //       // Require the robot drive
+  //       this)
+  //       .andThen(() -> this.emergencyStop().schedule())
+  //       .beforeStarting(() -> this.setBrakeMode(IdleMode.kBrake))
+  //       .beforeStarting(() -> this.setRampRate(false));
+  // }
 
   /**
    * sets the chassis brake mode
@@ -450,6 +433,12 @@ public class Drivetrain extends SubsystemBase {
   */
   public Pose2d getPose() {
     return odometry.getPoseMeters();
+  }
+
+  /* Gets the position of the robot via pose2d
+  */
+  public Pose2d getDesiredPose() {
+    return new Pose2d(1, 0, Rotation2d.fromDegrees(0));
   }
 
   /* Resets the position of the robot via pose2d

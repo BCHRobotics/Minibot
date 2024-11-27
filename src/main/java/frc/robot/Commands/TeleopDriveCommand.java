@@ -54,7 +54,6 @@ public class TeleopDriveCommand extends Command {
 
     @Override
     public void execute() {
-        // TODO: set the max output of the drivetrain using min/max sourced from triggers
         driveSubsystem.setMaxOutput(CHASSIS.DEFAULT_OUTPUT + (maxOutput.getAsDouble() * CHASSIS.MAX_INTERVAL)
           - (minOutput.getAsDouble() * CHASSIS.MIN_INTERVAL));
         

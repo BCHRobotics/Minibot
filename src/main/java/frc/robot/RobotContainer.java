@@ -4,20 +4,23 @@
 
 package frc.robot;
 
-import frc.robot.Commands.AlignToHeadingCommand;
-// Import required modules
-import frc.robot.Commands.Autos;
 import frc.robot.Commands.TeleopDriveCommand;
-import frc.robot.Constants.MECHANISM;
+import frc.robot.Commands.Pathing.AlignToHeadingCommand;
+import frc.robot.Commands.Pathing.AlignToPointCommand;
+import frc.robot.Commands.Pathing.DriveStraightCommand;
+import frc.robot.Commands.Pathing.FollowPathCommand;
 import frc.robot.Constants.PERIPHERALS;
 import frc.robot.subsystems.Drivetrain;
 
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.DoubleSubscriber;
 // Import required libraries
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -92,7 +95,14 @@ public class RobotContainer {
 
     // [Test] Align to heading of 90 when right bumper is pressed
     // this.driverController.rightBumper().onTrue(
-    //   new AlignToHeadingCommand(null, null, null, null, drivetrain));
+    //   new AlignToHeadingCommand(() -> drivetrain.getHeadingDeg(), () -> drivetrain.getDesiredHeading(), drivetrain));
+    // this.driverController.rightBumper().onTrue(
+    //   new AlignToPointCommand(() -> drivetrain.getPose(), () -> drivetrain.getDesiredPose(), drivetrain));
+
+    List<Pose2d> points = List.of(new Pose2d(1, 0, new Rotation2d()));
+
+    this.driverController.rightBumper().onTrue(
+      new FollowPathCommand(() -> drivetrain.getPose(), points, 0, drivetrain));
   }
 
   public double adjustJoystickInput(DoubleSupplier input, double scale) {
