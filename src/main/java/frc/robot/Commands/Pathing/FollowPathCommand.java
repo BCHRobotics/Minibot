@@ -28,6 +28,8 @@ public class FollowPathCommand extends Command {
         currentPosition = current;
         
         pointBeingTargeted = pointIndex;
+
+        targetPoints = targets;
         
         // There IS a drivetrain requirement even though the rotation and driving commands also have that requirement
         // This is fine, because all commandds are scheduled at once this command will be canceled, that's fine

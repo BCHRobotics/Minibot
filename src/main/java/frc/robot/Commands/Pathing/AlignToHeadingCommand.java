@@ -71,6 +71,6 @@ public class AlignToHeadingCommand extends Command {
     @Override
     public boolean isFinished() {
         // End if the drive mode is not headinglock
-        return (driveSubsystem.getDriveMode() != DriveMode.HEADINGLOCK) || Math.abs(currentHeading.getAsDouble() - desiredHeading.getAsDouble()) < 2;
+        return (driveSubsystem.getDriveMode() != DriveMode.HEADINGLOCK) || Math.abs(currentHeading.getAsDouble() - desiredHeading.getAsDouble()) < 10;
     }
 }

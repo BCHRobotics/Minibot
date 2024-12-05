@@ -11,25 +11,22 @@ import frc.robot.Commands.Pathing.DriveStraightCommand;
 import frc.robot.Commands.Pathing.FollowPathCommand;
 import frc.robot.Constants.PERIPHERALS;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.util.AutoUtils;
 
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.DoubleSubscriber;
+
 // Import required libraries
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -99,12 +96,18 @@ public class RobotContainer {
     // this.driverController.rightBumper().onTrue(
     //   new AlignToPointCommand(() -> drivetrain.getPose(), () -> drivetrain.getDesiredPose(), drivetrain));
 
-    List<Pose2d> points = List.of(new Pose2d(1, 0, new Rotation2d()));
+    List<Pose2d> points = List.of(new Pose2d(1, 0, new Rotation2d()), new Pose2d(2, 1, new Rotation2d()));
 
     this.driverController.rightBumper().onTrue(
       new FollowPathCommand(() -> drivetrain.getPose(), points, 0, drivetrain));
   }
 
+  /**
+   * Multiplies a joystick input by a scale factor, and returns the result
+   * @param input The joystick input
+   * @param scale The multiplier
+   * @return The scaled joystick input
+   */
   public double adjustJoystickInput(DoubleSupplier input, double scale) {
       return input.getAsDouble() * scale;
   }
@@ -130,6 +133,13 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+
+    // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
+
+    // // define the auto as a set of paths in a string
+    // String commandString = "1";
+    // // split up the command string and make an auto with it
+    // return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
   }
 
   /*

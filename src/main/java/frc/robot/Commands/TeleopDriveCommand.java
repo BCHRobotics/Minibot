@@ -1,6 +1,5 @@
 package frc.robot.Commands;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.CANSparkBase.IdleMode;

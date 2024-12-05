@@ -71,38 +71,6 @@ public final class Constants {
     public static final SerialPort.Port GYRO_PORT = SerialPort.Port.kMXP;
     public static final boolean GYRO_OUTPUT_INVERTED = false;
     public static final double GYRO_TOLERANCE = 0.8;
-
-    // Gyro balance PID Constants TODO: Re-tune gyro
-    public static final class BALANCE_CONSTANTS {
-      public static final double kP = 0.006;
-      public static final double kI = 0.001;
-      public static final double kD = 0.0006;
-      public static final double kFF = 0.002;
-    }
-
-    // Limelight PID constants
-    public static final class SEEK_CONSTANTS {
-      public static final double kP = 0.012;
-      public static final double kI = 0;
-      public static final double kD = 0.0002;
-      public static final double kFF = 0.0132;
-    }
-
-    // Limelight PID constants
-    public static final class TARGET_CONSTANTS {
-      public static final double kP = 0.017;
-      public static final double kI = 0;
-      public static final double kD = 0.0002;
-      public static final double kFF = 0.014;
-    }
-
-    // Gyro Turn PID constants
-    public static final class ALIGN_CONSTANTS {
-      public static final double kP = 0.0122;
-      public static final double kI = 0;
-      public static final double kD = 0.0002;
-      public static final double kFF = 0.0132;
-    }
   }
 
   public static final class PERIPHERALS {
@@ -112,44 +80,7 @@ public final class Constants {
     public static final double CONTROLLER_DEADBAND = 0.1;
   }
 
-  public static final class COLOR {
-    public static final int COLOR_SENSOR_PORT = 0;
-  }
-
-  public static final class VISION {
-    public enum TARGET_TYPE {
-      APRILTAG, REFLECTIVE_TAPE, CONE, CUBE
-    }
-
-    public static final int CUBE_PIPELINE = 0;
-    public static final int CONE_PIPELINE = 1;
-    public static final int REFLECTIVE_PIPLINE = 3;
-    public static final int NEURAL_NETWORK_PIPELINE = 4;
-    public static final int APRILTAG_PIPELINE = 7;
-
-    public static final double LIMELIGHT_ANGLE = 13.7; // degrees
-    public static final double LIMELIGHT_HEIGHT = 43.5; // inches
-    public static final double LIMELIGHT_TOLERANCE = 0.15; // degrees (x axis)
-    public static final double LIMELIGHT_CHASSIS_OFFSET = 13; // inches
-
-    public static final double MID_ARM_OFFSET = 42; // inches
-
-    public static final double APRILTAG_HEIGHT = 18.125; // inches
-    public static final double REFLECTIVE_TAPE_HEIGHT = 24.125; // inches
-    public static final double CONE_HEIGHT = 43.75; // inches
-    public static final double CUBE_HEIGHT = 4.5; // inches
-  }
-
   public static final class MISC {
-    public static final int CONE_LED_PORT = 0;
-    public static final int CUBE_LED_PORT = 1;
-
-    public static final double CUBE_DETECTION_CURRENT = 22;
-    public static final double CONE_DETECTION_CURRENT = 29;
-
-    public static final double BLINK_INTERVAL = 0.3; // seconds
-
-
     public static final double ENSURE_RANGE(double value, double min, double max) {
       return Math.min(Math.max(value, min), max);
     }
@@ -166,5 +97,4 @@ public final class Constants {
       return (input >= (setpoint - tolerance)) && (input <= (setpoint + tolerance));
     }
   }
-
 }

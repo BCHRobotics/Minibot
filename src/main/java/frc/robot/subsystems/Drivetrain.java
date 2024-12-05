@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -50,13 +51,13 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new Drive subsystem. */
   public Drivetrain() {
-
+    // Init the motors
     this.frontLeftMotor = new CANSparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
     this.frontRightMotor = new CANSparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
-
+    
     this.frontLeftMotor.restoreFactoryDefaults();
     this.frontRightMotor.restoreFactoryDefaults();
-
+    // The motors are being set to coast mode here, but they are set to brake in the drive commands
     this.frontLeftMotor.setIdleMode(IdleMode.kCoast);
     this.frontRightMotor.setIdleMode(IdleMode.kCoast);
 
@@ -92,25 +93,26 @@ public class Drivetrain extends SubsystemBase {
 
     this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
 
-    AutoBuilder.configureRamsete(
-                this::getPose, // Robot pose supplier
-                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getChassisSpeeds, // Current ChassisSpeeds supplier
-                this::setChassisSpeeds, // Method that will drive the robot given ChassisSpeeds
-                new ReplanningConfig(), // Default path replanning config. See the API for the options here
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    AutoBuilder.configureLTV(
+            this::getPose, // Robot pose supplier
+            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            0.02, // PPLTVController is the built in path following controller for differential drive trains
+            new ReplanningConfig(), // The robot configuration
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this // Reference to this subsystem to set requirements
-        );
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
   }
 
   // Very important drive mode functions that make everything work
@@ -161,29 +163,6 @@ public class Drivetrain extends SubsystemBase {
     return this.leftMotorController.reachedSetpoint(this.getLeftPositionInches(), CHASSIS.TOLERANCE) &&
         this.rightMotorController.reachedSetpoint(this.getRightPositionInches(), CHASSIS.TOLERANCE);
   }
-
-  // /**
-  //  * Uses PID along with gyro data to turn to a provided heading
-  //  */
-  // public Command turnToGyro(double angle) {
-  //   return new PIDCommand(
-  //       new PIDController(
-  //           CHASSIS.ALIGN_CONSTANTS.kP,
-  //           CHASSIS.ALIGN_CONSTANTS.kI,
-  //           CHASSIS.ALIGN_CONSTANTS.kD),
-  //       // Close the loop on the turn rate
-  //       this.gyro::getYaw,
-  //       // Setpoint is 0
-  //       angle,
-  //       // Pipe the output to the turning controls
-  //       (output) -> this
-  //           .turn(output > 0 ? (output + CHASSIS.ALIGN_CONSTANTS.kFF) : (output - CHASSIS.ALIGN_CONSTANTS.kFF)),
-  //       // Require the robot drive
-  //       this)
-  //       .andThen(() -> this.emergencyStop().schedule())
-  //       .beforeStarting(() -> this.setBrakeMode(IdleMode.kBrake))
-  //       .beforeStarting(() -> this.setRampRate(false));
-  // }
 
   /**
    * sets the chassis brake mode
@@ -246,16 +225,6 @@ public class Drivetrain extends SubsystemBase {
   public void arcadeDrive(double forward, double rot) {
     // Decreasing the drive command for safety
     this.drive.arcadeDrive(forward, rot);
-  }
-
-  /**
-   * Sets motor output using arcade drive controls
-   * 
-   * @param percent linear motion [-1 --> 1] (Backwards --> Forwards)
-   */
-  private void turn(double percent) {
-    this.frontLeftMotor.set(-percent);
-    this.frontRightMotor.set(percent);
   }
 
   /**
@@ -438,7 +407,7 @@ public class Drivetrain extends SubsystemBase {
   /* Gets the position of the robot via pose2d
   */
   public Pose2d getDesiredPose() {
-    return new Pose2d(1, 0, Rotation2d.fromDegrees(0));
+    return new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
   }
 
   /* Resets the position of the robot via pose2d

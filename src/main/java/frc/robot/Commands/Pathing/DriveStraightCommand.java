@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.CHASSIS;
@@ -23,6 +24,8 @@ public class DriveStraightCommand extends Command {
     Callable<Pose2d> desiredPosition;
 
     PIDController distanceController;
+
+    Transform2d transform;
 
     public DriveStraightCommand(Callable<Pose2d> current, Callable<Pose2d> desired, Drivetrain subsystem) {
         distanceController = new PIDController(3, 0, 0);
@@ -44,6 +47,8 @@ public class DriveStraightCommand extends Command {
         driveSubsystem.setDeadband(PERIPHERALS.CONTROLLER_DEADBAND);
         driveSubsystem.setRampRate(true);
         driveSubsystem.setBrakeMode(IdleMode.kBrake);
+
+        transform = null;
 
         // Tell the driver that headinglock driving has been enabled
         System.out.println("AUTO DRIVE ON");
@@ -71,7 +76,9 @@ public class DriveStraightCommand extends Command {
         }
 
         if (currentPose != null && desiredPose != null) {
-            Transform2d transform = new Transform2d(currentPose, desiredPose);
+            transform = new Transform2d(
+                new Pose2d(currentPose.getX(), currentPose.getY(), new Rotation2d()), 
+            new Pose2d(desiredPose.getX(), desiredPose.getY(), new Rotation2d()));
             
             Transform2d headingVector = AutoUtils.getHeadingVector(driveSubsystem.getHeadingDeg());
             Transform2d projectedTransform = AutoUtils.projectOntoVector(transform, headingVector);
@@ -100,6 +107,11 @@ public class DriveStraightCommand extends Command {
     @Override
     public boolean isFinished() {
         // End if the drive mode is not headinglock
-        return (driveSubsystem.getDriveMode() != DriveMode.AUTODRIVE);
+        boolean hasReachedPosition = false;
+        if (transform != null) {
+            hasReachedPosition = Math.abs(transform.getX()) < 0.35 && Math.abs(transform.getY()) < 0.35;
+        }
+
+        return (driveSubsystem.getDriveMode() != DriveMode.AUTODRIVE) || hasReachedPosition;
     }
 }

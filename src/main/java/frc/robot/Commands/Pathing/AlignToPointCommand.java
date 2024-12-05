@@ -27,13 +27,14 @@ public class AlignToPointCommand extends Command {
 
     Callable<Pose2d> currentPosition;
     Callable<Pose2d> desiredPosition;
+    Pose2d currentPose;
 
     PIDController rotationController;
 
     double desiredHeading;
 
     public AlignToPointCommand(Callable<Pose2d> current, Callable<Pose2d> desired, Drivetrain subsystem) {
-        rotationController = new PIDController(0.04, 0, 0);
+        rotationController = new PIDController(0.05, 0, 0);
 
         // Assign the variables that point to input values
         currentPosition = current;
@@ -55,20 +56,20 @@ public class AlignToPointCommand extends Command {
 
         // Tell the driver that headinglock driving has been enabled
         System.out.println("POINTLOCK ON");
-    }
 
-    @Override
-    public void execute() {
-        driveSubsystem.setMaxOutput(CHASSIS.DEFAULT_OUTPUT);
-
-        // Defining current and desired position
-        Pose2d currentPose = null;
+        currentPose = null;
         try {
             currentPose = currentPosition.call();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void execute() {
+        driveSubsystem.setMaxOutput(CHASSIS.DEFAULT_OUTPUT);
+
         Pose2d desiredPose = null;
         try {
             desiredPose = desiredPosition.call();
@@ -78,10 +79,13 @@ public class AlignToPointCommand extends Command {
         }
 
         if (currentPose != null && desiredPose != null) {
-            Transform2d transform = new Transform2d(currentPose, desiredPose);
+            Transform2d transform = new Transform2d(
+                new Pose2d(currentPose.getX(), currentPose.getY(), new Rotation2d()), 
+            new Pose2d(desiredPose.getX(), desiredPose.getY(), new Rotation2d()));
 
             // Using atan2 to get the angle the robot should be facing
-            desiredHeading = Math.atan2(transform.getX(), transform.getY());
+            desiredHeading = Math.atan2(transform.getY(), transform.getX());
+            desiredHeading *= 180 / Math.PI;
 
             // Drive the bot
             driveSubsystem.arcadeDrive(0, MathUtil.clamp(rotationController.calculate(driveSubsystem.getHeadingDeg(), desiredHeading), -0.35, 0.35));
@@ -105,6 +109,6 @@ public class AlignToPointCommand extends Command {
     @Override
     public boolean isFinished() {
         // End if the drive mode is not headinglock
-        return (driveSubsystem.getDriveMode() != DriveMode.POINTLOCK || Math.abs(driveSubsystem.getHeadingDeg() - desiredHeading) < 2);
+        return (driveSubsystem.getDriveMode() != DriveMode.POINTLOCK || Math.abs(driveSubsystem.getHeadingDeg() - desiredHeading) < 10);
     }
 }
