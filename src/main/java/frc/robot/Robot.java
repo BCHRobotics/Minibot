@@ -32,6 +32,18 @@ public void teleopPeriodic() {
    
 }
 
+/** This method is called once when autonomous mode starts. */
+@Override
+public void autonomousInit() {
+
+}
+
+/** This function is called periodically during autonomous. */
+@Override
+  public void autonomousPeriodic() {
+
+}
+
 /** This method is called once each time the robot enters Disabled mode. */
 @Override
 public void disabledInit() { 
