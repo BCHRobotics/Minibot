@@ -8,35 +8,40 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
 
 
-  @Override
-  public void robotInit() {
+ /** This method is called once when the robot starts up. */
+@Override
+public void robotInit() { 
    
-  }
+}
 
-  @Override
-  public void robotPeriodic() {
-    
-  }
+/** This method is called periodically, regardless of the robot mode. */
+@Override
+public void robotPeriodic() { 
+   
+}
 
-  @Override
-  public void teleopInit() {
-    // Optional: Reset things like encoders, gyros
-  }
+/** This method is called once when teleop mode (driver control) starts. */
+@Override
+public void teleopInit() { 
+   
+}
 
-  @Override
-  public void teleopPeriodic() {
-    // Optional: Include teleop-specific logic here if needed
-  }
+/** This method is called periodically during teleop mode. */
+@Override
+public void teleopPeriodic() { 
+   
+}
 
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {
+/** This method is called once each time the robot enters Disabled mode. */
+@Override
+public void disabledInit() { 
+   
+}
 
-  }
-
-  @Override
-   public void disabledPeriodic() {
-
-  }
+/** This method is called periodically during disabled mode. */
+@Override
+public void disabledPeriodic() { 
+   
+}
 
 }
