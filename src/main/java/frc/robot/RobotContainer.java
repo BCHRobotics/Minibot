@@ -18,6 +18,18 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
 
+    public class Robot extends TimedRobot {
+        private RobotContainer robotContainer;
+        
+        public Drivetrain getDrivetrain() {
+            return m_drivetrain;
+        }
+    }
+
+    
+    private final Drivetrain m_drivetrain = new Drivetrain();
+    
+
     configureButtonBindings();
     configureDefaultCommands();
 

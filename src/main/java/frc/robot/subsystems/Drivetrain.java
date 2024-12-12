@@ -46,6 +46,11 @@ public class Drivetrain extends SubsystemBase {
 }
 
 public DriveTrain() {
+    public DriveTrain() {
+        this.leftMotor = new CANSparkMax(Constants.CHASSIS.LEFT_MOTOR_ID, MotorType.kBrushless);
+        this.rightMotor = new CANSparkMax(Constants.CHASSIS.RIGHT_MOTOR_ID, MotorType.kBrushless);
+      }
+
     this.leftMotor = new CANSparkMax(deviceID: 13, MotorType.kBrushless);
     this.rightMotor = new CANSparkMax(deviceID: 11, MotorType.kBrushless);
 }
@@ -68,8 +73,3 @@ public Command releaseBrakes() {
     });
 
 }
-
-
-
-
-

@@ -4,12 +4,13 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Drivetrain;
 
 public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;
 
-  private Timer timer;
+  private javax.swing.Timer timer;
 
 
  /** This method is called once when the robot starts up. */
@@ -18,16 +19,6 @@ public void robotInit() {
 
   robotContainer = new RobotContainer();
   timer = new Timer();
-
-  public class RobotContainer {
-    private final Drivetrain m_drivetrain = new Drivetrain();
-
-  }
-
-  public DriveTrain() {
-    this.leftMotor = new CANSparkMax(Constants.CHASSIS.LEFT_MOTOR_ID, MotorType.kBrushless);
-    this.rightMotor = new CANSparkMax(Constants.CHASSIS.RIGHT_MOTOR_ID, MotorType.kBrushless);
-  }
    
 }
 
@@ -65,12 +56,20 @@ public void autonomousInit() {
 /** This method is called once each time the robot enters Disabled mode. */
 @Override
 public void disabledInit() { 
+  robotContainer.getDrivetrain().brake();
+
+  timer.reset();
+  timer.start();
    
 }
 
 /** This method is called periodically during disabled mode. */
 @Override
 public void disabledPeriodic() { 
+  if (timer.hasElapsed(seconds:3:0)) {
+    robotContainer.getDrivetrain().releaseBrake();
+    timer.stop(); 
+  }
    
 }
 
