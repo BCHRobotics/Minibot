@@ -18,4 +18,28 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
 
+    configureButtonBindings();
+    configureDefaultCommands();
+
+    private void configureButtonBindings() {
+
+        this.driverController.leftBumper()
+        .whileTrue(this.m_drivetrain.brake())
+        .onFalse(this.m_drivetrain.releaseBrakes());
+
+    }
+
+    private void configureDefaultCommands() {
+        
+        Command drivingCommand = m_drivetrain.arcadeDriveCommand(-this.driverController.getLeftY(), -this.driverController.getRightX());
+
+        m_drivetrain.setDefaultCommand(drivingCommand);
+
+    }
+
+    private final Drivetrain m_drivetrain = new Drivetrain();
+
+    private final Command XboxController driverController = new CommandXboxController(Contants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+
+
 }

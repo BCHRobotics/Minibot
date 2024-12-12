@@ -15,8 +15,61 @@ import frc.robot.Constants;
  * Has commands related to the drivetrain (ex. commands for driving, braking, etc.)
  * 
  */
+
+
+this.leftMotor.restoreFactoryDefaults();
+this.rightMotor.restoreFactoryDefaults();
+
+// Set current limits for the motors to prevent overloading
+this.leftMotor.setSmartCurrentLimit(60, 20);
+this.rightMotor.setSmartCurrentLimit(60, 20);
+
+this.leftMotor.setInverted(true);
+this.rightMotor.setInverted(false);
+
+// Set motor modes (for braking, etc.)
+this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+
+this.differentialDrive = new DifferentialDrive(leftMotor, rightMotor);
+
+this.differentialDrive.setMaxOutput(0.25);
+this.differentialDrive.setSafetyEnabled(true);
+this.differentialDrive.setExpiration(0.1);
+
 public class Drivetrain extends SubsystemBase {
+    private final CANSparkMax leftMotor;
+    private final CANSparkMax rightMotor;
+    private final DifferentialDrive differentialDrive; 
+
 
 }
+
+public DriveTrain() {
+    this.leftMotor = new CANSparkMax(deviceID: 13, MotorType.kBrushless);
+    this.rightMotor = new CANSparkMax(deviceID: 11, MotorType.kBrushless);
+}
+
+public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
+    return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+}
+
+public Command brake() {
+    return runOnce(() -> {
+        this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);    
+    });
+}
+
+public Command releaseBrakes() {
+    return runOnce(() -> {
+        this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+        this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    });
+
+}
+
+
+
 
 

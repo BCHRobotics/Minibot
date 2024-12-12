@@ -7,16 +7,34 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
 
+  private RobotContainer robotContainer;
+
+  private Timer timer;
+
 
  /** This method is called once when the robot starts up. */
 @Override
 public void robotInit() { 
+
+  robotContainer = new RobotContainer();
+  timer = new Timer();
+
+  public class RobotContainer {
+    private final Drivetrain m_drivetrain = new Drivetrain();
+
+  }
+
+  public DriveTrain() {
+    this.leftMotor = new CANSparkMax(Constants.CHASSIS.LEFT_MOTOR_ID, MotorType.kBrushless);
+    this.rightMotor = new CANSparkMax(Constants.CHASSIS.RIGHT_MOTOR_ID, MotorType.kBrushless);
+  }
    
 }
 
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() { 
+  CommandScheduler.getinstance().run();
    
 }
 
