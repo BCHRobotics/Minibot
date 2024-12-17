@@ -67,10 +67,13 @@ public class Drivetrain extends SubsystemBase {
         });
     }
 
-    private double speedMultiplier = 1.0;
+    private double speedMultiplier = 1;
 
     public Command slowMode() {
-        return runOnce(() -> speedMultiplier = 1.0);
+        return runOnce(() -> speedMultiplier = 0.5);
+    }
+    public Command normalMode() {
+        return runOnce(() -> speedMultiplier = 1);
     }
 }
 

@@ -33,10 +33,9 @@ public class RobotContainer {
         .onFalse(this.m_drivetrain.releaseBrakes());
 
         this.driverController.leftTrigger()
-        .whileTrue(this.m_drivetrain.slowMode());
+        .whileTrue(this.m_drivetrain.slowMode())
+        .onFalse(this.m_drivetrain.normalMode());
 
-        this.driverController.rightTrigger()
-        .whileTrue(this.m_drivetrain.slowMode());
 
         this.driverController.a()
         .whileTrue(this.m_drivetrain.arcadeDriveCommand(
