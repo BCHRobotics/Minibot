@@ -66,7 +66,7 @@ public class Drivetrain extends SubsystemBase {
             this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
         });
     }
-
+//
     private double speedMultiplier = 1;
 
     public Command slowMode() {
