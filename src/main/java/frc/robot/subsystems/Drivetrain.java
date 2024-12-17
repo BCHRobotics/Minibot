@@ -50,7 +50,7 @@ public class Drivetrain extends SubsystemBase {
 
     }
     public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
-        return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+        return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble() * speedMultiplier, turn.getAsDouble() * speedMultiplier));
     }
 
     public Command brake() {
@@ -67,10 +67,10 @@ public class Drivetrain extends SubsystemBase {
         });
     }
 
+    private double speedMultiplier = 1.0;
+
     public Command slowMode() {
-        return runOnce(() -> {
-            this.differentialDrive.setMaxOutput(0.5);
-        });
+        return runOnce(() -> speedMultiplier = 1.0);
     }
 }
 
