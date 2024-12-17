@@ -37,14 +37,15 @@ public class RobotContainer {
         .onFalse(this.m_drivetrain.releaseBrakes());
 
         this.driverController.leftTrigger()
-        .whileTrue(this.m_drivetrain.driveSlow());
-        
-        this.driverController.leftTrigger()
-        .whileTrue(this.m_drivetrain.driveSlow());
+        .whileTrue(this.m_drivetrain.driveSlow(
+            ()-> this.driverController.getLeftY(),
+            () -> this.driverController.getRightX()));
 
         this.driverController.a()
-        .whileTrue(this.m_drivetrain.driveForward());
-    
+        .whileTrue(this.m_drivetrain.driveForward(
+            ()-> this.driverController.getLeftY(),
+            () -> this.driverController.getRightX()
+        ));
 
     }
 

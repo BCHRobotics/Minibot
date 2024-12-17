@@ -26,7 +26,9 @@ public void robotInit() {
 @Override
 public void robotPeriodic() { 
   CommandScheduler.getInstance().run();
-   
+
+  robotContainer.getDrivetrain().printTemp();
+  
 }
 
 /** This method is called once when teleop mode (driver control) starts. */

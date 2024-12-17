@@ -50,6 +50,16 @@ public class Drivetrain extends SubsystemBase {
         return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
     }
 
+    //driving slower when pressing left trigger
+    public Command driveSlow(DoubleSupplier forward, DoubleSupplier turn) {
+        return run(() -> this.differentialDrive.arcadeDrive(0.25 * forward.getAsDouble(), 0.25* turn.getAsDouble()));
+    }
+
+    //drive forward when pressing a
+    public Command driveForward(DoubleSupplier forward, DoubleSupplier turn) {
+        return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+    }
+
     public Command brake() {
         return runOnce(() -> {
             this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -64,4 +74,15 @@ public class Drivetrain extends SubsystemBase {
         });
 
     }
+
+    public void printTemp() {
+        //getting motor temperature
+        System.out.println(this.leftMotor.getMotorTemperature());
+        System.out.println(this.rightMotor.getMotorTemperature());
+        //get voltage
+        System.out.println(this.leftMotor.getBusVoltage());
+        System.out.println(this.rightMotor.getBusVoltage());
+
+    }
+
 }
