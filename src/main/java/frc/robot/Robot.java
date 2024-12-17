@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Drivetrain;
 
 public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;
-
+  private Drivetrain m_drivetrain;
   private Timer timer;
 
   public Drivetrain getDriveTrain(){
@@ -30,12 +31,8 @@ public void robotInit() {
 @Override
 public void robotPeriodic() {
   // this is calling the methods from drive train method names motorTemperature and motorVoltage
-  robotContainer.getDrivetrain().motorTemperature();
+  robotContainer.getDriveTrain().motorTemperature();
   robotContainer.getDriveTrain().motorVoltage();
-
-
-
-
    
 }
 
@@ -67,7 +64,7 @@ public void autonomousInit() {
 @Override
 public void disabledInit() { 
 
-  robotContainer.getDriveTrain().brake();
+  robotContainer.getDriveTrain().Brake();
   //reset then start timer
   timer.reset();
   timer.start();
@@ -76,9 +73,9 @@ public void disabledInit() {
 @Override
 public void disabledPeriodic() { 
   //check if 3 second have elapsed
-  if(timer.hasElapsed(seconds:3.0)){
+  if(timer.hasElapsed(3.0)){
     //switch to coast mode
-    robotContainier.getDriveTrain().releaseBrakes();
+    robotContainer.getDriveTrain().releaseBrakes();
     timer.stop();
   }
    

@@ -25,58 +25,50 @@ public class RobotContainer {
     public Drivetrain getDriveTrain(){
         return m_drivetrain;
     }
+
+    public RobotContainer() {
+        //calling method names
+        configureButtonBindings();
+        configureDefaultCommands();
+        configureTriggerBindings();
+        configureDriveForwardA();
+    }
+
+        // button bindings for using left bumper it will brake if pressed
+        private void configureButtonBindings(){
+    
+            this.driverController.leftBumper()
+            .whileTrue(this.m_drivetrain.brake());  // brakes on when button is held
+            .onFalse(this.m_drivetrain.releaseBrakes());  // brakes off when button is released
     
         }
-public RobotContainer() {
-//calling method names
-    configureButtonBindings();
-    configureDefaultCommands();
-    configureTriggerBindings();
-    configureDriveForwardA();
-// button bindings for using left bumper it will brake if pressed
-    private void configureButtonBindings(){
-
-        this.driverController.leftBumper()
-        .whileTrue(this.m_drivetrain.brake());  // brakes on when button is held
-        .onFalse(this.m_drivetrain.releaseBrakes());  // brakes off when button is released
-
-    }
-// arcade drive
-    private void configureDefaultCommands(){
-
-        Command drivingCommand = m_drivetrain.arcadeDriveCommand(-this.driverController.getLeftY(), -this.driverController.getRightX());
-        // set the default behavior of the drive subsystems to react to joystick inputs
-        m_drivetrain.setDefaultCommand(drivingCommand);
-
-// method for trigger drive
-    private void configureTriggerBindings(){
-
-        // setting the left trigger to drive slowly
+        // arcade drive
+        private void configureDefaultCommands(){
+            Command drivingCommand = m_drivetrain.arcadeDriveCommand(-this.driverController.getLeftY(), -this.driverController.getRightX());
+            // set the default behavior of the drive subsystems to react to joystick inputs
+            m_drivetrain.setDefaultCommand(drivingCommand);
+        }
         
-        Command triggerDrive = m_drivetrain.slowArcadeDriveCommand(-this.driverController.getleftY(), -this.driverController.getRightX());
-// if left trigger is being pressed or true it will drive slowly if false it will coast
-        this.driverController.leftTrigger()
-        .whileTrue(this.m_drivetrain.triggerDrive());
-        .onFalse(this.m_drivetrain.kCoast());
-        
-        
-    }
-//driving forward with A command
-    private void configureDriveForwardA(){
+        // method for trigger drive
+        private void configureTriggerBindings(){
+            // setting the left trigger to drive slowly
+            Command triggerDrive = m_drivetrain.slowArcadeDriveCommand(-this.driverController.getleftY(), -this.driverController.getRightX());
+            // if left trigger is being pressed or true it will drive slowly if false it will coast
+            this.driverController.leftTrigger()
+            .whileTrue(this.m_drivetrain.triggerDrive());
+            .onFalse(this.m_drivetrain.kCoast());
+        }
 
-        //setting the command for A drive
-
-        Command aDrive = m_drivetrain.arcadeDriveCommand(1,0);
-//saying that if the driver controller button a is being pressed if true drive forward if false coast
-        this.driverController.a()
-        .whileTrue(this.m_drivetrain.aDrive());
-        .onFalse(this.m_drivetrain.kCoast());
-        
-    }
-
-
-    }
-
-
-
-    }
+        //driving forward with A command
+        private void configureDriveForwardA(){
+    
+            //setting the command for A drive
+    
+            Command aDrive = m_drivetrain.arcadeDriveCommand(1,0);
+            //saying that if the driver controller button a is being pressed if true drive forward if false coast
+            this.driverController.a()
+            .whileTrue(this.m_drivetrain.aDrive());
+            .onFalse(this.m_drivetrain.kCoast());
+            
+        }
+}
