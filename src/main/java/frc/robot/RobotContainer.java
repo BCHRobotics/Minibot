@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.Drivetrain;
@@ -18,20 +19,16 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
 
-    public class Robot extends TimedRobot {
-        private RobotContainer robotContainer;
-        
-        public Drivetrain getDrivetrain() {
+    public Drivetrain getDrivetrain() {
             return m_drivetrain;
         }
-    }
 
     
     private final Drivetrain m_drivetrain = new Drivetrain();
-    
 
-    configureButtonBindings();
-    configureDefaultCommands();
+
+    private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+
 
     private void configureButtonBindings() {
 
@@ -39,19 +36,29 @@ public class RobotContainer {
         .whileTrue(this.m_drivetrain.brake())
         .onFalse(this.m_drivetrain.releaseBrakes());
 
+        this.driverController.leftTrigger()
+        .whileTrue(this.m_drivetrain.driveSlow());
+        
+        this.driverController.leftTrigger()
+        .whileTrue(this.m_drivetrain.driveSlow());
+
+        this.driverController.a()
+        .whileTrue(this.m_drivetrain.driveForward());
+    
+
     }
 
     private void configureDefaultCommands() {
         
-        Command drivingCommand = m_drivetrain.arcadeDriveCommand(-this.driverController.getLeftY(), -this.driverController.getRightX());
+        Command drivingCommand = m_drivetrain.arcadeDriveCommand(
+            () -> this.driverController.getLeftY(),
+            () -> this.driverController.getRightX()
+
+        );
 
         m_drivetrain.setDefaultCommand(drivingCommand);
 
     }
-
-    private final Drivetrain m_drivetrain = new Drivetrain();
-
-    private final Command XboxController driverController = new CommandXboxController(Contants.CONTROLLER.DRIVER_CONTROLLER_PORT);
 
 
 }
