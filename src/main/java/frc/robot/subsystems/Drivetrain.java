@@ -395,7 +395,7 @@ public class Drivetrain extends SubsystemBase {
     double linearSpeed = speed.vxMetersPerSecond;
     double rotSpeed = speed.omegaRadiansPerSecond;
     //dividing by 3.4 because that's more or less the maximum speed of the robot
-    arcadeDrive(linearSpeed / 3.4, rotSpeed);
+    arcadeDrive(Math.min(linearSpeed / 3.4, 0.5), Math.min(rotSpeed, 0.5));
   }
 
   /* Gets the position of the robot via pose2d
