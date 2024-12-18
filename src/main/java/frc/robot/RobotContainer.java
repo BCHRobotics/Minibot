@@ -18,4 +18,40 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
 
+    private final Drivetrain m_drivetrain = new Drivetrain();
+
+    private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+
+    public Drivetrain getDrivetrain() {
+        return m_drivetrain;
+    }
+    public RobotContainer() {
+
+        configureButtonBindings();
+        configureDefaultCommands();
+    } 
+    private void configureDefaultCommands() {
+            Command drivingCommand = m_drivetrain.arcadeDriveCommand(
+    () -> -this.driverController.getLeftY(), //Lambda (->) gets the current Y value
+    () -> -this.driverController.getRightX() //Lambda (->) gets the current X value
+);
+    //Set the default behaviour of the drive subsystem to react to joystick inputs
+    m_drivetrain.setDefaultCommand(drivingCommand);
+
+    }
+
+    private void configureButtonBindings() {
+
+        this.driverController.leftBumper()
+        .whileTrue(this.m_drivetrain.brake()) //Brakes on the button is held
+        .onFalse(this.m_drivetrain.releaseBrakes()); //Brakes off when button is released
+    
+        this.driverController.a().whileTrue(this.m_drivetrain.driveForward());
+        this.driverController.leftTrigger().whileTrue(this.m_drivetrain.slowmode())
+        .onFalse(this.m_drivetrain.normalmode());
+    }
+
+
+    
+
 }
