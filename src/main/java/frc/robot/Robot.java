@@ -19,8 +19,7 @@ public class Robot extends TimedRobot {
 
  /** This method is called once when the robot starts up. */
 @Override
-public void robotInit() {
-  CommandScheduler.getInstance().run(); 
+public void robotInit() { 
 
   robotContainer = new RobotContainer();
   timer = new Timer(); //WPILib timer
@@ -30,9 +29,11 @@ public void robotInit() {
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() {
+  CommandScheduler.getInstance().run();
+
   // this is calling the methods from drive train method names motorTemperature and motorVoltage
-  robotContainer.getDriveTrain().motorTemperature();
-  robotContainer.getDriveTrain().motorVoltage();
+  System.out.println(robotContainer.getDriveTrain().motorTemperature());
+  System.out.println(robotContainer.getDriveTrain().motorVoltage());
    
 }
 

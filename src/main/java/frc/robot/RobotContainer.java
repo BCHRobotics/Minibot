@@ -56,15 +56,15 @@ public class RobotContainer {
             Command triggerDrive = m_drivetrain.slowMode();
             // if left trigger is being pressed or true it will drive slowly if false it will coast
             this.driverController.leftTrigger()
-            .whileTrue(triggerDrive);
+            .whileTrue(triggerDrive)
+            .onFalse(this.m_drivetrain.normalMode());
         }
 
         //driving forward with A command
         private void configureDriveForwardA(){
     
             //setting the command for A drive
-    
-            Command aDrive = m_drivetrain.arcadeDriveCommand(() -> -this .driverController.getLeftY(), () -> -this.driverController.getRightX());
+            Command aDrive = m_drivetrain.arcadeDriveCommand(() -> 0.25, () -> 0);
             //saying that if the driver controller button a is being pressed if true drive forward if false coast
             this.driverController.a()
             .whileTrue(aDrive);
