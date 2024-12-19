@@ -32,7 +32,11 @@ public void teleopInit() {
 /** This method is called periodically during teleop mode. */
 @Override
 public void teleopPeriodic() { 
-   
+   double leftMotorTemp = robotContainer.getDrivetrain().getLeftMotorTemperature();
+   double rightMotorTemp = robotContainer.getDrivetrain().getRightMotorTemperature();
+
+   // Print the temperatures to the console
+   System.out.println(leftMotorTemp + " " + rightMotorTemp);
 }
 
 /** This method is called once when autonomous mode starts. */

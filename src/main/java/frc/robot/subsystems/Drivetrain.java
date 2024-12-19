@@ -74,6 +74,15 @@ public class Drivetrain extends SubsystemBase {
     public Command normalMode() {
         return runOnce(() -> speedMultiplier = 1);
     }
+    public double getLeftMotorTemperature() {
+        return leftMotor.getMotorTemperature();
+    }
+    public double getRightMotorTemperature() {
+        return rightMotor.getMotorTemperature();
+    }
+    
+    
+    
 }
 
 
