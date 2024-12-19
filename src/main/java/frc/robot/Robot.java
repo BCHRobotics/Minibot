@@ -64,7 +64,7 @@ public void autonomousInit() {
 @Override
 public void disabledInit() { 
 
-  robotContainer.getDriveTrain().Brake();
+  robotContainer.getDriveTrain().brake();
   //reset then start timer
   timer.reset();
   timer.start();

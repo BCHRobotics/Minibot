@@ -32,6 +32,7 @@ public class RobotContainer {
         configureDefaultCommands();
         configureTriggerBindings();
         configureDriveForwardA();
+        
     }
 
         // button bindings for using left bumper it will brake if pressed
@@ -52,11 +53,10 @@ public class RobotContainer {
         // method for trigger drive
         private void configureTriggerBindings(){
             // setting the left trigger to drive slowly
-            Command triggerDrive = m_drivetrain.slowMode(1,0);
+            Command triggerDrive = m_drivetrain.slowMode();
             // if left trigger is being pressed or true it will drive slowly if false it will coast
             this.driverController.leftTrigger()
-            .whileTrue(this.m_drivetrain.triggerDrive());
-            .onFalse(this.m_drivetrain.kCoast());
+            .whileTrue(triggerDrive);
         }
 
         //driving forward with A command
@@ -64,11 +64,10 @@ public class RobotContainer {
     
             //setting the command for A drive
     
-            Command aDrive = m_drivetrain.arcadeDriveCommand(1,0);
+            Command aDrive = m_drivetrain.arcadeDriveCommand(() -> -this .criverController.getLeftY(), () -> -this/driverController);
             //saying that if the driver controller button a is being pressed if true drive forward if false coast
             this.driverController.a()
-            .whileTrue(this.m_drivetrain.aDrive());
-            .`  onFalse(this.m_drivetrain.kCoast());
+            .whileTrue(aDrive);
             
         }
 }
