@@ -46,9 +46,9 @@ public class RobotContainer {
         .whileTrue(this.m_drivetrain.brake()) //Brakes on the button is held
         .onFalse(this.m_drivetrain.releaseBrakes()); //Brakes off when button is released
     
-        this.driverController.a().whileTrue(this.m_drivetrain.driveForward());
+        this.driverController.a().whileTrue(this.m_drivetrain.driveForward());//Robot moves forward when the "a" key is pressed
         this.driverController.leftTrigger().whileTrue(this.m_drivetrain.slowmode())
-        .onFalse(this.m_drivetrain.normalmode());
+        .onFalse(this.m_drivetrain.normalmode());//Puts the robot into slow mode when the left trigger is pressed and goes back into normal mode when it is released
     }
 
 

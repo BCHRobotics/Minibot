@@ -24,8 +24,8 @@ public void robotInit() {
 public void robotPeriodic() { 
    CommandScheduler.getInstance().run();
    
-  this.robotContainer.getDrivetrain().getTemperature();
-  this.robotContainer.getDrivetrain().getBusVoltage();
+  this.robotContainer.getDrivetrain().getTemperature(); //Calls the getTemperature method
+  this.robotContainer.getDrivetrain().getBusVoltage(); //Calls the getBusVoltage method
 }
 
 /** This method is called once when teleop mode (driver control) starts. */

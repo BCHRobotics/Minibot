@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 /** 
  * Class for the drivetrain subsystem (A BLUEPRINT to CREATE the drivetrain subystem, the ACTUAL subsystem will be created in RobotContainer.java) 
@@ -67,28 +66,28 @@ public class Drivetrain extends SubsystemBase {
     
     private double speedMultiplier = 1;
     public Command arcadeDriveCommand (DoubleSupplier forward, DoubleSupplier turn) {
-        return run (() -> this.differentialDrive.arcadeDrive(forward.getAsDouble() * speedMultiplier, turn.getAsDouble() * speedMultiplier));
+        return run (() -> this.differentialDrive.arcadeDrive(forward.getAsDouble() * speedMultiplier, turn.getAsDouble() * speedMultiplier));//Multiplies the forward and turn speed by the speed multiplier
     }
     
     public Command slowmode() {
-        return runOnce (() -> speedMultiplier=0.5 );
+        return runOnce (() -> speedMultiplier=0.5 );//Makes the speed multiplier 0.5
     }
 
     public Command normalmode() {
-        return runOnce (() -> speedMultiplier=1);
+        return runOnce (() -> speedMultiplier=1);//Makes the speed multiplier 1
     }
     
     public Command driveForward () { 
-        return run (() -> this.differentialDrive.arcadeDrive( 0.25,  0 ));
+        return run (() -> this.differentialDrive.arcadeDrive( 0.25,  0 ));//sets the forward speed to 0.25 and the turn speed to 0
     }
     
     public void getTemperature () {
-        System.out.println(this.leftMotor.getMotorTemperature());
-        System.out.println(this.rightMotor.getMotorTemperature());
+        System.out.println(this.leftMotor.getMotorTemperature());//Gets the temperature of left motor
+        System.out.println(this.rightMotor.getMotorTemperature());//Gets the temperature of the right motor
     }
     
     public void getBusVoltage () {
-        System.out.println(this.leftMotor.getBusVoltage());
-        System.out.println(this.rightMotor.getBusVoltage());
+        System.out.println(this.leftMotor.getBusVoltage()); //Gets voltage of left motor
+        System.out.println(this.rightMotor.getBusVoltage());//Gets the voltage of right motor
     }
 }
