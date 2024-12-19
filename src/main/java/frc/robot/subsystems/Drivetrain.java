@@ -58,13 +58,27 @@ public Drivetrain(){
         double[] motorVoltage = {this.leftMotor.getBusVoltage(), this.rightMotor.getBusVoltage()};
         return motorVoltage;
     }
+
+double speedMultiplier = 1;
 // command for arcade drive
 public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
-    return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+    return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble() * speedMultiplier, turn.getAsDouble()));
 
         }
+
+public Command slowMode(){
+    return runOnce(()->{
+        this.speedMultiplier = 0.5;
+    });
+}
+
+public Command normalMode(){
+    return runOnce(()->{
+        this.speedMultiplier = 1;
+    });
+}
 // command for brake
-public Command Brake() {
+public Command brake() {
     return runOnce(() -> {
         this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -77,10 +91,7 @@ public Command releaseBrakes() {
         this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
     });
 }
-// command for the slow arcade drive
-public Command slowArcadeDriveCommand(DoubleSupplier slowForward, DoubleSupplier slowTurn) {
-    return run(() -> this.differentialDrive.arcadeDrive(slowForward.getAsDouble() *0.5, slowTurn.getAsDouble() *0.5));
-    }
+
 
 }
 
