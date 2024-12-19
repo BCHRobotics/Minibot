@@ -64,7 +64,7 @@ public class RobotContainer {
     
             //setting the command for A drive
     
-            Command aDrive = m_drivetrain.arcadeDriveCommand(() -> -this .criverController.getLeftY(), () -> -this/driverController);
+            Command aDrive = m_drivetrain.arcadeDriveCommand(() -> -this .driverController.getLeftY(), () -> -this.driverController.getRightX());
             //saying that if the driver controller button a is being pressed if true drive forward if false coast
             this.driverController.a()
             .whileTrue(aDrive);
