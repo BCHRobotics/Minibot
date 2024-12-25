@@ -28,11 +28,18 @@ public class RobotContainer {
         return m_drivetrain;
     }
 
+
     public RobotContainer() {
         configureButtonBindings();
         configureDefaultCommands();
-
     }
+
+    
+    private final Drivetrain m_drivetrain = new Drivetrain();
+
+
+    private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+
 
     private void configureButtonBindings() {
 
