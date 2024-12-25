@@ -17,18 +17,22 @@ import frc.robot.subsystems.Drivetrain;
  * 
  */
 
+
 public class RobotContainer {
 
-    public Drivetrain getDrivetrain() {
-            return m_drivetrain;
-        }
-
-    
     private final Drivetrain m_drivetrain = new Drivetrain();
-
 
     private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
 
+    public Drivetrain getDrivetrain() {
+        return m_drivetrain;
+    }
+
+    public RobotContainer() {
+        configureButtonBindings();
+        configureDefaultCommands();
+
+    }
 
     private void configureButtonBindings() {
 
@@ -37,15 +41,11 @@ public class RobotContainer {
         .onFalse(this.m_drivetrain.releaseBrakes());
 
         this.driverController.leftTrigger()
-        .whileTrue(this.m_drivetrain.driveSlow(
-            ()-> this.driverController.getLeftY(),
-            () -> this.driverController.getRightX()));
+        .whileTrue(this.m_drivetrain.slowMode());
+
 
         this.driverController.a()
-        .whileTrue(this.m_drivetrain.driveForward(
-            ()-> this.driverController.getLeftY(),
-            () -> this.driverController.getRightX()
-        ));
+        .whileTrue(this.m_drivetrain.slowMode());
 
     }
 
@@ -59,7 +59,7 @@ public class RobotContainer {
 
         m_drivetrain.setDefaultCommand(drivingCommand);
 
-    }
+        }
 
 
 }

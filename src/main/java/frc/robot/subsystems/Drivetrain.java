@@ -46,13 +46,14 @@ public class Drivetrain extends SubsystemBase {
         this.differentialDrive.setExpiration(0.1);
     }
 
-    public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
-        return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+    private double speedMultiplier = 1;
+    public Command slowMode() {
+        return runOnce(() -> speedMultiplier = 0.5);
     }
 
-    //driving slower when pressing left trigger
-    public Command driveSlow(DoubleSupplier forward, DoubleSupplier turn) {
-        return run(() -> this.differentialDrive.arcadeDrive(0.25 * forward.getAsDouble(), 0.25* turn.getAsDouble()));
+
+    public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
+        return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble() * speedMultiplier, turn.getAsDouble()*speedMultiplier));
     }
 
     //drive forward when pressing a
