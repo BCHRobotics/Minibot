@@ -35,17 +35,7 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkMax frontLeftMotor;
   private final CANSparkMax frontRightMotor;
 
-  private final RelativeEncoder leftEncoder;
-  private final RelativeEncoder rightEncoder;
-
-  private final SparkMaxPID leftMotorController;
-  private final SparkMaxPID rightMotorController;
-
   private final DifferentialDrive drive;
-
-  private final Gyro gyro;
-
-  private final DifferentialDriveOdometry odometry;
 
   private DriveMode driveMode = DriveMode.MANUAL;
 
@@ -67,29 +57,8 @@ public class Drivetrain extends SubsystemBase {
     this.frontLeftMotor.setInverted(CHASSIS.INVERTED);
     this.frontRightMotor.setInverted(!CHASSIS.INVERTED);
 
-    this.leftEncoder = this.frontLeftMotor.getEncoder();
-    this.rightEncoder = this.frontRightMotor.getEncoder();
-
-    this.leftEncoder.setPositionConversionFactor(CHASSIS.LEFT_POSITION_CONVERSION);
-    this.rightEncoder.setPositionConversionFactor(CHASSIS.RIGHT_POSITION_CONVERSION);
-
-    this.leftEncoder.setVelocityConversionFactor(CHASSIS.LEFT_VELOCITY_CONVERSION);
-    this.rightEncoder.setVelocityConversionFactor(CHASSIS.RIGHT_VELOCITY_CONVERSION);
-
-    this.leftMotorController = new SparkMaxPID(this.frontLeftMotor, CHASSIS.LEFT_DRIVE_CONSTANTS);
-    this.rightMotorController = new SparkMaxPID(this.frontRightMotor, CHASSIS.RIGHT_DRIVE_CONSTANTS);
-
-    this.leftMotorController.setFeedbackDevice(this.leftEncoder);
-    this.rightMotorController.setFeedbackDevice(this.rightEncoder);
-
     this.leftMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
     this.rightMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
-
-    this.gyro = Gyro.getInstance();
-
-    this.odometry = new DifferentialDriveOdometry(
-      gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
-    
 
     this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
 
@@ -427,12 +396,12 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    // update odometry below
+    
     // This method will be called once per scheduler run
     this.drive.feed();
-
-    odometry.update(
-        gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
-
+    
     printToDashBoard();
     //System.out.println(getHeadingDeg());
   }
