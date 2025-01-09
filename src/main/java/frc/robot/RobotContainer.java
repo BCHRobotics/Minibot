@@ -36,8 +36,12 @@ public class RobotContainer {
         .whileTrue(this.m_drivetrain.slowMode())
         .onFalse(this.m_drivetrain.normalMode());
 
+        this.driverController.rightTrigger()
+        .whileTrue(this.m_drivetrain.turboMode())
+        .onFalse(this.m_drivetrain.normalMode());
 
-        this.driverController.a()
+
+        this.driverController.a() //drive forward when pressing a
         .whileTrue(this.m_drivetrain.arcadeDriveCommand(
             () -> 1.0,
             () -> 0.0));

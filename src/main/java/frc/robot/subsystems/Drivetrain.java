@@ -68,12 +68,16 @@ public class Drivetrain extends SubsystemBase {
     }
     private double speedMultiplier = 1;
 
-    public Command slowMode() {
+    public Command slowMode() { // speed multiplier makes the speed half
         return runOnce(() -> speedMultiplier = 0.5);
     }
-    public Command normalMode() {
+    public Command normalMode() { // for returning to normal mode
         return runOnce(() -> speedMultiplier = 1);
     }
+    public Command turboMode() { // speed multiplier makes the speed double}
+        return runOnce(() -> speedMultiplier = 2);
+    }
+    // returning motor temperatures
     public double getLeftMotorTemperature() {
         return leftMotor.getMotorTemperature();
     }
