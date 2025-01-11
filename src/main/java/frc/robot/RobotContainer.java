@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
 
 /** 
  * The RobotContainer is where we set up everything for the robot: 
@@ -17,13 +18,17 @@ import frc.robot.subsystems.Drivetrain;
  */
 
 public class RobotContainer {
-
+    private final Elevator m_elevator = new Elevator();
+    
     private final Drivetrain m_drivetrain = new Drivetrain();
 
     private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
 
     public Drivetrain getDrivetrain() {
         return m_drivetrain;
+    }
+    public Elevator getElevator() {
+        return m_elevator;
     }
     public RobotContainer() {
 
