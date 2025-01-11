@@ -7,16 +7,33 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
 
+  private RobotContainer robotContainer;
+  private Timer timer;
+
 
  /** This method is called once when the robot starts up. */
 @Override
 public void robotInit() { 
-   
+
+  robotContainer = new RobotContainer();
+  timer = new Timer(); // WPLib Timer
+
 }
 
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() { 
+  CommandScheduler.getInstance().run();
+
+  Timer timer = new Timer();
+
+  timer.start();
+  timer.get();
+
+  if (timer.hasElapsed(2.0)) {
+    robotContainer.getDrivetrain().printTemp();
+    timer.reset();
+  }
    
 }
 
@@ -29,6 +46,7 @@ public void teleopInit() {
 /** This method is called periodically during teleop mode. */
 @Override
 public void teleopPeriodic() { 
+
    
 }
 
@@ -47,12 +65,25 @@ public void autonomousInit() {
 /** This method is called once each time the robot enters Disabled mode. */
 @Override
 public void disabledInit() { 
+
+  // drivetrain.brake();
+  robotContainer.getDrivetrain().brake();
+
+  // Reset then Start the timer
+  timer.reset();
+  timer.start();
    
 }
 
 /** This method is called periodically during disabled mode. */
 @Override
 public void disabledPeriodic() { 
+      // Check if 3 seconds have elapsed
+  if (timer.hasElapsed(3.0)){
+    // Switch to coast moded
+    robotContainer.getDrivetrain().releaseBrakes();
+    timer.stop(); // Stop the timer after switching to coast mode
+  }
    
 }
 
