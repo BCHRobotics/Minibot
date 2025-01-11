@@ -40,6 +40,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  // A chooser for autonomous commands
+  private final SendableChooser<Command> autoChooser;
+
   // The robot's subsystems
   private final Drivetrain drivetrain = new Drivetrain();
 
@@ -65,6 +68,10 @@ public class RobotContainer {
 
     configureBindings();
     configureNamedCommands();
+
+    //building the auto chooser for pathplanner
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
       }
 
@@ -129,7 +136,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //return autoChooser.getSelected();
+    return autoChooser.getSelected();
 
     // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
 
