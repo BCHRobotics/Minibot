@@ -39,12 +39,20 @@ public class Drivetrain extends SubsystemBase {
 
   private DriveMode driveMode = DriveMode.MANUAL;
 
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
+
+  private final SparkMaxPID leftMotorController;
+  private final SparkMaxPID rightMotorController;
+  
+  private final Gyro gyro;
+  private final DifferentialDriveOdometry odometry;
   /** Creates a new Drive subsystem. */
   public Drivetrain() {
     // Init the motors
     this.frontLeftMotor = new CANSparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
     this.frontRightMotor = new CANSparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
-    
+
     this.frontLeftMotor.restoreFactoryDefaults();
     this.frontRightMotor.restoreFactoryDefaults();
     // The motors are being set to coast mode here, but they are set to brake in the drive commands
@@ -57,10 +65,30 @@ public class Drivetrain extends SubsystemBase {
     this.frontLeftMotor.setInverted(CHASSIS.INVERTED);
     this.frontRightMotor.setInverted(!CHASSIS.INVERTED);
 
+    this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
+
+    this.leftEncoder = this.frontLeftMotor.getEncoder();
+    this.rightEncoder = this.frontRightMotor.getEncoder();
+
+    this.leftEncoder.setPositionConversionFactor(CHASSIS.LEFT_POSITION_CONVERSION);
+    this.rightEncoder.setPositionConversionFactor(CHASSIS.RIGHT_POSITION_CONVERSION);
+
+    this.leftEncoder.setVelocityConversionFactor(CHASSIS.LEFT_VELOCITY_CONVERSION);
+    this.rightEncoder.setVelocityConversionFactor(CHASSIS.RIGHT_VELOCITY_CONVERSION);
+
+    this.leftMotorController = new SparkMaxPID(this.frontLeftMotor, CHASSIS.LEFT_DRIVE_CONSTANTS);
+    this.rightMotorController = new SparkMaxPID(this.frontRightMotor, CHASSIS.RIGHT_DRIVE_CONSTANTS);
+
+    this.leftMotorController.setFeedbackDevice(this.leftEncoder);
+    this.rightMotorController.setFeedbackDevice(this.rightEncoder);
+
     this.leftMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
     this.rightMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
 
-    this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
+    this.gyro = Gyro.getInstance();
+
+    this.odometry = new DifferentialDriveOdometry(
+      gyro.getRotation2d(), this.getLeftPositionMeters(), this.getRightPositionMeters());
 
     AutoBuilder.configureLTV(
             this::getPose, // Robot pose supplier
@@ -396,7 +424,9 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-
+    
+    odometry.update(
+      gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
     // update odometry below
     
     // This method will be called once per scheduler run
