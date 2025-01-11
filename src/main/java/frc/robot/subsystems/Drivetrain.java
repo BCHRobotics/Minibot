@@ -89,16 +89,16 @@ public class Drivetrain extends SubsystemBase {
     
     public void getTemperature () {
         if (timer.hasElapsed(2.0)) {
-        System.out.println("Left Motor Temperature is" + this.leftMotor.getMotorTemperature());//Gets the temperature of left motor
-        System.out.println("Right Motor Temperature is" + this.rightMotor.getMotorTemperature());//Gets the temperature of the right motor
+        System.out.println("Left Motor Temperature is " + this.leftMotor.getMotorTemperature());//Gets the temperature of left motor
+        System.out.println("Right Motor Temperature is " + this.rightMotor.getMotorTemperature());//Gets the temperature of the right motor
         timer.reset();
         }
     }
     
     public void getBusVoltage () {
         if (timer.hasElapsed(2.0)) {
-        System.out.println("Left Motor Voltage is" + this.leftMotor.getBusVoltage()); //Gets voltage of left motor
-        System.out.println("Right Motor Voltage is" + this.rightMotor.getBusVoltage());//Gets the voltage of right motor
+        System.out.println("Left Motor Voltage is " + this.leftMotor.getBusVoltage()); //Gets voltage of left motor
+        System.out.println("Right Motor Voltage is " + this.rightMotor.getBusVoltage());//Gets the voltage of right motor
         timer.reset();
         }
     }
