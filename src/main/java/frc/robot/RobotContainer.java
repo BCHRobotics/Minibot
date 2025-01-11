@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
 
 /** 
  * The RobotContainer is where we set up everything for the robot: 
@@ -19,8 +20,10 @@ import frc.robot.subsystems.Drivetrain;
 public class RobotContainer {
 
     private final Drivetrain m_drivetrain = new Drivetrain();
+    private final Elevator m_elevator = new Elevator();
 
     private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController driverController2 = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT2);
     // importing drivetrain
     public Drivetrain getDriveTrain(){
         return m_drivetrain;
@@ -36,11 +39,17 @@ public class RobotContainer {
     }
 
         // button bindings for using left bumper it will brake if pressed
+
         private void configureButtonBindings(){
     
             this.driverController.leftBumper()
             .whileTrue(this.m_drivetrain.brake())  // brakes on when button is held
-            .onFalse(this.m_drivetrain.releaseBrakes());  // brakes off when button is released
+            .onFalse(this.m_drivetrain.releaseBrakes()); 
+            
+            this.driverController2.rightBumper()
+            .whileTrue(this.m_elevator.stop())
+            .onFalse(this.m_elevator.releaseStop());
+            // brakes off when button is released
     
         }
         // arcade drive
@@ -53,7 +62,7 @@ public class RobotContainer {
         // method for trigger drive
         private void configureTriggerBindings(){
             // setting the left trigger to drive slowly
-            Command triggerDrive = m_drivetrain.slowMode();
+            Command triggerDrive = m_drivetrain.turboMode();
             // if left trigger is being pressed or true it will drive slowly if false it will coast
             this.driverController.leftTrigger()
             .whileTrue(triggerDrive)
@@ -70,4 +79,7 @@ public class RobotContainer {
             .whileTrue(aDrive);
             
         }
-}
+
+        }
+
+

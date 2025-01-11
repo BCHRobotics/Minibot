@@ -32,9 +32,10 @@ public void robotPeriodic() {
   CommandScheduler.getInstance().run();
 
   // this is calling the methods from drive train method names motorTemperature and motorVoltage
-  System.out.println(robotContainer.getDriveTrain().motorTemperature());
-  System.out.println(robotContainer.getDriveTrain().motorVoltage());
-   
+  if (timer.hasElapsed(2.0)) {
+    System.out.println(robotContainer.getDriveTrain().motorTemperature());
+    System.out.println(robotContainer.getDriveTrain().motorVoltage());
+  }
 }
 
 /** This method is called once when teleop mode (driver control) starts. */

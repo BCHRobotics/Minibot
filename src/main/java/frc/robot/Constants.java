@@ -11,6 +11,7 @@ public final class Constants {
         }
        public static final class CONTROLLER {
         public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int DRIVER_CONTROLLER_PORT2 = 1;
 
 
     }

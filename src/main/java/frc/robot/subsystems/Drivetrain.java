@@ -8,6 +8,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Joystick;
+
 
 /** 
  * Class for the drivetrain subsystem (A BLUEPRINT to CREATE the drivetrain subystem, the ACTUAL subsystem will be created in RobotContainer.java) 
@@ -15,11 +22,18 @@ import frc.robot.Constants;
  * Has commands related to the drivetrain (ex. commands for driving, braking, etc.)
  * 
  */
+
+
 public class Drivetrain extends SubsystemBase {
     
+    // int age;
+    // system.out.println(age);
     private final CANSparkMax leftMotor;
     private final CANSparkMax rightMotor;
     private final DifferentialDrive differentialDrive;
+
+
+
 public Drivetrain(){
     // initialize intances fields in the constructor
     this.leftMotor = new CANSparkMax(13, MotorType.kBrushless);
@@ -66,9 +80,9 @@ public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
 
         }
 
-public Command slowMode(){
+public Command turboMode(){
     return runOnce(()->{
-        this.speedMultiplier = 0.5;
+        this.speedMultiplier = 1.5;
     });
 }
 
@@ -94,7 +108,4 @@ public Command releaseBrakes() {
 
 
 }
-
-
-
 
