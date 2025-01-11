@@ -42,12 +42,20 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems
   private final Drivetrain drivetrain = new Drivetrain();
+  private final SendableChooser <Command> autoChooser;
 
   // The driver's controller
   CommandXboxController driverController = new CommandXboxController(PERIPHERALS.DRIVER_PORT);
 
 
+
   public RobotContainer() {
+
+    configureBindings();
+    configureNamedCommands();
+
+    autoChooser= AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     // Set default commands
 
     DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.35);
@@ -128,18 +136,6 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    //return autoChooser.getSelected();
-
-    // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
-
-    // // define the auto as a set of paths in a string
-    // String commandString = "1";
-    // // split up the command string and make an auto with it
-    // return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
-
-    return Commands.runOnce(() -> drivetrain.resetPose(new Pose2d())).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("test")));
-  }
 
   /*
    * Resets the gyro heading of the robot
@@ -154,4 +150,10 @@ public class RobotContainer {
   public void resetPosition() {
     this.drivetrain.resetFieldPosition();
   }
+
+    public Command getAutonomousCommand(){
+    return autoChooser.getSelected();
+  }
+
+
 }
