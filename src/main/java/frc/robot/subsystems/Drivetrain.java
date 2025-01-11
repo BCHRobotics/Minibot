@@ -289,7 +289,7 @@ public class Drivetrain extends SubsystemBase {
     return this.leftEncoder.getVelocity() * 0.0254;
   }
 
-  /**
+  /**z
    * Returns the drivetrain's right encoder velocity in inches and meters per second respectively
    * 
    * @return Right Velocity
