@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.controllers.PPLTVController;
+//import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -66,7 +66,10 @@ public class Drivetrain extends SubsystemBase {
 
     this.leftMotor.setInverted(CHASSIS.INVERTED);
     this.rightMotor.setInverted(!CHASSIS.INVERTED);
-
+    
+    this.leftPIDMotorController = new SparkMaxPID(this.leftMotor, CHASSIS.LEFT_DRIVE_CONSTANTS);
+    this.rightPIDMotorController = new SparkMaxPID(this.rightMotor, CHASSIS.RIGHT_DRIVE_CONSTANTS);
+    
     this.leftPIDMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
     this.rightPIDMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
 
@@ -78,9 +81,6 @@ public class Drivetrain extends SubsystemBase {
 
     this.leftEncoder.setVelocityConversionFactor(CHASSIS.LEFT_VELOCITY_CONVERSION);
     this.rightEncoder.setVelocityConversionFactor(CHASSIS.RIGHT_VELOCITY_CONVERSION);
-
-    this.leftPIDMotorController = new SparkMaxPID(this.leftMotor, CHASSIS.LEFT_DRIVE_CONSTANTS);
-    this.rightPIDMotorController = new SparkMaxPID(this.rightMotor, CHASSIS.RIGHT_DRIVE_CONSTANTS);
 
     this.leftPIDMotorController.setFeedbackDevice(this.leftEncoder);
     this.rightPIDMotorController.setFeedbackDevice(this.rightEncoder);
