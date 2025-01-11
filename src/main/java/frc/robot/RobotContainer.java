@@ -46,6 +46,9 @@ public class RobotContainer {
   // The driver's controller
   CommandXboxController driverController = new CommandXboxController(PERIPHERALS.DRIVER_PORT);
 
+  // A chooser for autonomous commands
+  private final SendableChooser<Command> autoChooser;
+
 
   public RobotContainer() {
     // Set default commands
@@ -65,6 +68,10 @@ public class RobotContainer {
 
     configureBindings();
     configureNamedCommands();
+
+    // building the auto chooser for pathplanner
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
       }
 
