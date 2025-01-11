@@ -4,6 +4,8 @@ import java.util.function.DoubleSupplier;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,14 +21,14 @@ public class Drivetrain extends SubsystemBase {
     private final CANSparkMax leftMotor;
     private final CANSparkMax rightMotor;
     private final DifferentialDrive differentialDrive;
-    
-    
+    private final Timer timer;
     
     public Drivetrain() {
         //Initialize instance fields in the constructor
         this.leftMotor = new CANSparkMax (13, MotorType.kBrushless);
         this.rightMotor = new CANSparkMax(11, MotorType.kBrushless);
         this.differentialDrive = new DifferentialDrive(leftMotor, rightMotor);
+        this.timer = new Timer();
 
         this.differentialDrive.setMaxOutput(0.25);
         this.differentialDrive.setSafetyEnabled(true);
@@ -73,6 +75,10 @@ public class Drivetrain extends SubsystemBase {
         return runOnce (() -> speedMultiplier=0.5 );//Makes the speed multiplier 0.5
     }
 
+    public Command turbomode() {
+        return runOnce(() -> speedMultiplier=5); //Makes the speed multiplier 5
+    }
+
     public Command normalmode() {
         return runOnce (() -> speedMultiplier=1);//Makes the speed multiplier 1
     }
@@ -82,12 +88,18 @@ public class Drivetrain extends SubsystemBase {
     }
     
     public void getTemperature () {
-        System.out.println(this.leftMotor.getMotorTemperature());//Gets the temperature of left motor
-        System.out.println(this.rightMotor.getMotorTemperature());//Gets the temperature of the right motor
+        if (timer.hasElapsed(2.0)) {
+        System.out.println("Left Motor Temperature is" + this.leftMotor.getMotorTemperature());//Gets the temperature of left motor
+        System.out.println("Right Motor Temperature is" + this.rightMotor.getMotorTemperature());//Gets the temperature of the right motor
+        timer.reset();
+        }
     }
     
     public void getBusVoltage () {
-        System.out.println(this.leftMotor.getBusVoltage()); //Gets voltage of left motor
-        System.out.println(this.rightMotor.getBusVoltage());//Gets the voltage of right motor
+        if (timer.hasElapsed(2.0)) {
+        System.out.println("Left Motor Voltage is" + this.leftMotor.getBusVoltage()); //Gets voltage of left motor
+        System.out.println("Right Motor Voltage is" + this.rightMotor.getBusVoltage());//Gets the voltage of right motor
+        timer.reset();
+        }
     }
 }

@@ -49,9 +49,7 @@ public class RobotContainer {
         this.driverController.a().whileTrue(this.m_drivetrain.driveForward());//Robot moves forward when the 'a' key is pressed
         this.driverController.leftTrigger().whileTrue(this.m_drivetrain.slowmode())
         .onFalse(this.m_drivetrain.normalmode());//Puts the robot into slow mode when the left trigger is pressed and goes back into normal mode when it is released
+        this.driverController.rightTrigger().whileTrue(this.m_drivetrain.turbomode())
+        .onFalse(this.m_drivetrain.normalmode());//Puts the robot into turbo mode when the right trigger is pressed and goes back into normal mode when it is released
     }
-
-
-    
-
 }
