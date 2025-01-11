@@ -43,6 +43,8 @@ public class RobotContainer {
   // The robot's subsystems
   private final Drivetrain drivetrain = new Drivetrain();
 
+  private final SendableChooser<Command> autoChooser;
+
   // The driver's controller
   CommandXboxController driverController = new CommandXboxController(PERIPHERALS.DRIVER_PORT);
 
@@ -65,6 +67,9 @@ public class RobotContainer {
 
     configureBindings();
     configureNamedCommands();
+
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
       }
 
@@ -139,6 +144,10 @@ public class RobotContainer {
     // return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
 
     return Commands.runOnce(() -> drivetrain.resetPose(new Pose2d())).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("test")));
+  }
+
+  public Command getAutonoCommand() {
+    return autoChooser.getSelected();
   }
 
   /*
