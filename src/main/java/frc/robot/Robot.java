@@ -10,19 +10,33 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private Timer timer;
 
+  private RobotContainer robotContainer;
+
+  private Timer timer;
 
  /** This method is called once when the robot starts up. */
 @Override
 public void robotInit() { 
    
   robotContainer = new RobotContainer();
+<<<<<<< HEAD
   timer = new Timer();
+=======
+  timer = new Timer(); //WPILib Timer
+>>>>>>> c482622ecf28f871ebd4959b516eaac1270fbfe1
 }
 
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() { 
+<<<<<<< HEAD
   CommandScheduler.getInstance().run();
+=======
+   CommandScheduler.getInstance().run();
+   
+  this.robotContainer.getDrivetrain().getTemperature();
+  this.robotContainer.getDrivetrain().getBusVoltage();
+>>>>>>> c482622ecf28f871ebd4959b516eaac1270fbfe1
 }
 
 /** This method is called once when teleop mode (driver control) starts. */
@@ -53,12 +67,21 @@ public void autonomousInit() {
 @Override
 public void disabledInit() { 
    
+<<<<<<< HEAD
   robotContainer.getDrivtrain().brake();
   Drivetrain drivetrain;
   drivetrain.brake();
 
   timer.reset();
   timer.start();
+=======
+robotContainer.getDrivetrain().brake();
+
+//Reset then Start the timer
+timer.reset();
+timer.start();
+
+>>>>>>> c482622ecf28f871ebd4959b516eaac1270fbfe1
 }
 
 
@@ -66,11 +89,19 @@ public void disabledInit() {
 @Override
 public void disabledPeriodic() { 
    
+<<<<<<< HEAD
   double seconds;
     if (timer.hasElapsed(seconds: 3.0)) {
 
     robotContainer.getDrivtrain().releaseBrakes();
     timer.stop();
+=======
+      //Check if 3 seconds have elapsed
+  if (timer.hasElapsed(3.0)) {
+    //Switch to coast mode
+    robotContainer.getDrivetrain().releaseBrakes();
+    timer.stop(); //Stop the timer after switching to coast mode
+>>>>>>> c482622ecf28f871ebd4959b516eaac1270fbfe1
   }
 }
 
