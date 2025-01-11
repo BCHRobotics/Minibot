@@ -4,20 +4,25 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Drivetrain;
 
 public class Robot extends TimedRobot {
+  private RobotContainer robotContainer;
+  private Timer timer;
 
 
  /** This method is called once when the robot starts up. */
 @Override
 public void robotInit() { 
    
+  robotContainer = new RobotContainer();
+  timer = new Timer();
 }
 
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() { 
-   
+  CommandScheduler.getInstance().run();
 }
 
 /** This method is called once when teleop mode (driver control) starts. */
@@ -48,12 +53,25 @@ public void autonomousInit() {
 @Override
 public void disabledInit() { 
    
+  robotContainer.getDrivtrain().brake();
+  Drivetrain drivetrain;
+  drivetrain.brake();
+
+  timer.reset();
+  timer.start();
 }
+
 
 /** This method is called periodically during disabled mode. */
 @Override
 public void disabledPeriodic() { 
    
+  double seconds;
+    if (timer.hasElapsed(seconds: 3.0)) {
+
+    robotContainer.getDrivtrain().releaseBrakes();
+    timer.stop();
+  }
 }
 
 }
