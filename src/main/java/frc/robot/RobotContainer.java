@@ -136,7 +136,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+     return autoChooser.getSelected();
 
     // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
 
