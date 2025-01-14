@@ -11,8 +11,6 @@ public final class Constants {
         public static final int FRONT_LEFT_ID = 0;
         public static final int FRONT_RIGHT_ID = 0;
         public static final boolean INVERTED = false;
-    
-
         public static double LEFT_POSITION_CONVERSION() {
             // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'LEFT_POSITION_CONVERSION'");
@@ -32,3 +30,16 @@ public final class Constants {
         } 
 
     }
+
+
+
+    public final class CONTROLLER {
+        public static final int DRIVER_CONTROLLER_PORT = 0;
+<<<<<<< HEAD
+    }
+}
+=======
+
+    }
+}
+>>>>>>> c482622ecf28f871ebd4959b516eaac1270fbfe1
