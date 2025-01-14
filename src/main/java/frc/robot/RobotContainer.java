@@ -43,11 +43,21 @@ public class RobotContainer {
   // The robot's subsystems
   private final Drivetrain drivetrain = new Drivetrain();
 
+  private final SendableChooser<Command> autoChooser;
+
   // The driver's controller
   CommandXboxController driverController = new CommandXboxController(PERIPHERALS.DRIVER_PORT);
 
 
   public RobotContainer() {
+    
+    configureBindings();
+    configureDefaultCommands();
+
+    //building the auto chooser for pathplanner
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser)
+    
     // Set default commands
 
     DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.35);
@@ -129,7 +139,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //return autoChooser.getSelected();
+    return autoChooser.getSelected();
+
+
 
     // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
 
@@ -154,4 +166,3 @@ public class RobotContainer {
   public void resetPosition() {
     this.drivetrain.resetFieldPosition();
   }
-}
