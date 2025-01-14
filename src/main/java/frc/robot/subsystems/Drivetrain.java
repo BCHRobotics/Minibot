@@ -6,9 +6,7 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.util.ReplanningConfig;
-
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -22,43 +20,71 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CHASSIS;
-import frc.robot.Constants.DriveMode;
 import frc.robot.util.control.SparkMaxPID;
 import frc.robot.util.devices.Gyro;
 
 public class Drivetrain extends SubsystemBase {
   private final CANSparkMax frontLeftMotor;
   private final CANSparkMax frontRightMotor;
-
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
   private final DifferentialDrive drive;
+  private final Gyro gyro;
+  private final SparkMaxPID leftPIDMotorController;
+  private final SparkMaxPID rightPIDMotorController;
+  private final DifferentialDriveOdometry odometry;
+  private final DifferentialDrive differentialDrive;
 
-  private DriveMode driveMode = DriveMode.MANUAL;
 
-  /** Creates a new Drive subsystem. */
-  public Drivetrain() {
-    // Init the motors
-    this.frontLeftMotor = new CANSparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
-    this.frontRightMotor = new CANSparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
-    
-    this.frontLeftMotor.restoreFactoryDefaults();
-    this.frontRightMotor.restoreFactoryDefaults();
-    // The motors are being set to coast mode here, but they are set to brake in the drive commands
-    this.frontLeftMotor.setIdleMode(IdleMode.kCoast);
-    this.frontRightMotor.setIdleMode(IdleMode.kCoast);
+  
+    /** Creates a new Drive subsystem. */
+    public Drivetrain() {
+      // Init the motors
+      this.frontLeftMotor = new CANSparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
+      this.frontRightMotor = new CANSparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
+      
+      this.frontLeftMotor.restoreFactoryDefaults();
+      this.frontRightMotor.restoreFactoryDefaults();
+      // The motors are being set to coast mode here, but they are set to brake in the drive commands
+      this.frontLeftMotor.setIdleMode(IdleMode.kCoast);
+      this.frontRightMotor.setIdleMode(IdleMode.kCoast);
+  
+      this.frontLeftMotor.setSmartCurrentLimit(60, 20);
+      this.frontRightMotor.setSmartCurrentLimit(60, 20);
+  
+      this.frontLeftMotor.setInverted(CHASSIS.INVERTED);
+      this.frontRightMotor.setInverted(!CHASSIS.INVERTED);
+  
+      this.leftEncoder = this.frontLeftMotor.getEncoder();
+      this.rightEncoder = this.frontRightMotor.getEncoder();
 
-    this.frontLeftMotor.setSmartCurrentLimit(60, 20);
-    this.frontRightMotor.setSmartCurrentLimit(60, 20);
+      this.leftEncoder.setPositionConversionFactor(CHASSIS.LEFT_POSITION_CONVERSION());
+      this.rightEncoder.setPositionConversionFactor(CHASSIS.RIGHT_POSITION_CONVERSION());
 
-    this.frontLeftMotor.setInverted(CHASSIS.INVERTED);
-    this.frontRightMotor.setInverted(!CHASSIS.INVERTED);
+      this.leftEncoder.setVelocityConversionFactor(CHASSIS.LEFT_VELOCITY_CONVERSION());
+      this.rightEncoder.setVelocityConversionFactor(CHASSIS.RIGHT_VELOCITY_CONVERSION());
 
-    this.leftMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
-    this.rightMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
+      this.leftPIDMotorController = new SparkMaxPID(this.frontLeftMotor, CHASSIS.LEFT_DRIVE_CONSTANTS);
+      this.rightPIDMotorController = new SparkMaxPID(this.frontRightMotor, CHASSIS.RIGHT_DRIVE_CONSTANTS);
+
+      this.leftPIDMotorController.setFeedbackDevice(this.leftEncoder);
+      this.rightPIDMotorController.setFeedbackDevice(this.rightEncoder);
+
+      this.gyro = Gyro.getInstance();
+
+    this.leftPIDMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
+    this.rightPIDMotorController.setMotionProfileType(AccelStrategy.kTrapezoidal);
+
+      this.differentialDrive = new DifferentialDrive(frontLeftMotor, frontRightMotor); 
+
+      this.odometry = new DifferentialDriveOdometry(
+        gyro.getRotation2d(), getLeftPositionMeters(), getRightPositionMeters());
 
     this.drive = new DifferentialDrive(this.frontLeftMotor, this.frontRightMotor);
 
@@ -84,15 +110,23 @@ public class Drivetrain extends SubsystemBase {
     );
   }
 
-  // Very important drive mode functions that make everything work
-  public DriveMode getDriveMode() {
-    return driveMode;
+
+  // START ADDING YOUR CODE HERE
+  // Add arcadeDriveCommand, setbrakemode, etc.
+  // Day 9 slideshow
+  // ignore the other methods this
+
+  public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
+    return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+
   }
 
-  public void setDriveMode(DriveMode modeToSet) {
-    driveMode = modeToSet;
-  }
 
+
+
+
+  
+  // ignore belo 
   public void setDeadband(double deadband) {
     this.drive.setDeadband(deadband);
   }
@@ -112,79 +146,7 @@ public class Drivetrain extends SubsystemBase {
     return 90;
   }
 
-  /**
-   * Sets drivetrain position in inches
-   */
-  public Command positionDriveCommand(double leftPos, double rightPos) {
-    return run(() -> {
-      this.setPosition(leftPos, rightPos);
-    })
-        .until(this::reachedPosition)
-        .beforeStarting(() -> this.setBrakeMode(IdleMode.kBrake))
-        .beforeStarting(() -> this.setRampRate(false))
-        .withName("positionDrive");
-  }
-
-  /**
-   * Returns whether or not the robot has reached the desired position
-   */
-  private boolean reachedPosition() {
-    return this.leftMotorController.reachedSetpoint(this.getLeftPositionInches(), CHASSIS.TOLERANCE) &&
-        this.rightMotorController.reachedSetpoint(this.getRightPositionInches(), CHASSIS.TOLERANCE);
-  }
-
-  /**
-   * sets the chassis brake mode
-   */
-  public void setBrakeMode(IdleMode idleMode) {
-    this.frontLeftMotor.setIdleMode(idleMode);
-    this.frontRightMotor.setIdleMode(idleMode);
-    this.pushControllerUpdate();
-    SmartDashboard.putBoolean("Brake Mode", idleMode == IdleMode.kBrake);
-  }
-
-  public Command releaseBrakeMode() {
-    return runOnce(() -> this.setBrakeMode(IdleMode.kCoast));
-  }
-  public Command enableBrakeMode() {
-    return runOnce(() -> this.setBrakeMode(IdleMode.kBrake));
-  }
-
-  public void setRampRate(boolean state) {
-    this.frontLeftMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
-    this.frontRightMotor.setOpenLoopRampRate(state ? CHASSIS.RAMP_RATE : 0);
-    this.pushControllerUpdate();
-    SmartDashboard.putBoolean("Ramping", state);
-  }
-
-  public Command enableRampRate() {
-    return runOnce(() -> this.setRampRate(true));
-  }
-  public Command disableRampRate() {
-    return runOnce(() -> this.setRampRate(false));
-  }
-
-  /**
-   * Returns a command that stops the drivetrain its tracks.
-   */
-  public Command emergencyStop() {
-    return startEnd(() -> {
-      this.frontLeftMotor.disable();
-      this.frontRightMotor.disable();
-    }, this::releaseBrakeMode)
-        .beforeStarting(this::enableBrakeMode)
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
-  }
-
-  /**
-   * Basically like e-stop command for disabled mode only
-   */
-  public void killSwitch() {
-    this.frontLeftMotor.disable();
-    this.frontRightMotor.disable();
-    this.setBrakeMode(IdleMode.kBrake);
-  }
-
+  
   /**
    * Sets motor output using arcade drive controls
    * 
@@ -203,17 +165,6 @@ public class Drivetrain extends SubsystemBase {
    */
   public void setMaxOutput(double maxOutput) {
     this.drive.setMaxOutput(maxOutput);
-  }
-
-  /**
-   * Sets robot position in inches
-   * 
-   * @param left  position in inches
-   * @param right position in inches
-   */
-  private void setPosition(double left, double right) {
-    this.leftMotorController.setSmartPosition(left);
-    this.rightMotorController.setSmartPosition(right);
   }
 
   /**
@@ -293,13 +244,7 @@ public class Drivetrain extends SubsystemBase {
     this.rightEncoder.setPosition(0);
   }
 
-  /**
-   * Updates motor controllers after settings change
-   */
-  private void pushControllerUpdate() {
-    this.frontLeftMotor.burnFlash();
-    this.frontRightMotor.burnFlash();
-  }
+ 
 
   /**
    * Controls the left and right sides of the drive directly with voltages.
@@ -383,7 +328,7 @@ public class Drivetrain extends SubsystemBase {
   */
   public void resetPose(Pose2d pose) {
     resetEncoders();
-    odometry.resetPosition(
+        odometry.resetPosition(
         gyro.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), pose);
   }
 
@@ -391,7 +336,7 @@ public class Drivetrain extends SubsystemBase {
   */
   public void resetFieldPosition() {
     resetEncoders();
-    odometry.resetPosition(new Rotation2d(0, 0), 0, 0, new Pose2d(new Translation2d(0, 0), new Rotation2d(0, 0)));
+        odometry.resetPosition(new Rotation2d(0, 0), 0, 0, new Pose2d(new Translation2d(0, 0), new Rotation2d(0, 0)));
   }
 
   @Override

@@ -71,6 +71,22 @@ public final class Constants {
     public static final SerialPort.Port GYRO_PORT = SerialPort.Port.kMXP;
     public static final boolean GYRO_OUTPUT_INVERTED = false;
     public static final double GYRO_TOLERANCE = 0.8;
+    public static double LEFT_POSITION_CONVERSION() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'LEFT_POSITION_CONVERSION'");
+    }
+    public static double RIGHT_POSITION_CONVERSION() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'RIGHT_POSITION_CONVERSION'");
+    }
+    public static double LEFT_VELOCITY_CONVERSION() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'LEFT_VELOCITY_CONVERSION'");
+    }
+    public static double RIGHT_VELOCITY_CONVERSION() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'RIGHT_VELOCITY_CONVERSION'");
+    }
   }
 
   public static final class PERIPHERALS {

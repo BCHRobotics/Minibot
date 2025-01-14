@@ -43,6 +43,8 @@ public class RobotContainer {
   // The robot's subsystems
   private final Drivetrain drivetrain = new Drivetrain();
 
+  private final SendableChooser<Command> autoChooser;
+
   // The driver's controller
   CommandXboxController driverController = new CommandXboxController(PERIPHERALS.DRIVER_PORT);
 
@@ -50,53 +52,24 @@ public class RobotContainer {
   public RobotContainer() {
     // Set default commands
 
-    DoubleSupplier yCommand = () -> adjustJoystickInput(() -> -this.driverController.getLeftY(), 0.35);
-    DoubleSupplier xCommand = () -> adjustJoystickInput(() -> -this.driverController.getRightX(), 0.35);
+    configureDefaultCommands();
 
-    //Control the drive with split-stick arcade controls
-    this.drivetrain.setDefaultCommand(
-        new TeleopDriveCommand(
-            yCommand, xCommand,
-            () -> this.driverController.getLeftTriggerAxis(), () -> this.driverController.getRightTriggerAxis(), drivetrain));
-
-    // this.drivetrain.setDefaultCommand(
-    //     this.drivetrain.alignToHeadingCommand(
-    //         () -> this.drivetrain.getHeadingDeg(), () -> this.drivetrain.getDesiredHeading()));
+    autoChooser = AutoBuilder.buildAutoChooser();
+    //SmartDashboard.putData(key: "auto Chooser", autoChooser);
 
     configureBindings();
-    configureNamedCommands();
+    configureDefaultCommands();
 
       }
+  
+  public void configureDefaultCommands() {
 
-  /*
-   * Used for confirming named commands for pathplanner
-   */
-  public void configureNamedCommands() {
   }
 
-  /**
-   * Use this method to define bindings between conditions and commands. These are
-   * useful for
-   * automating robot behaviors based on button and sensor input.
-   *
-   * <p>
-   * Should be called during {@link Robot#robotInit()}.
-   *
-   * <p>
-   * Event binding methods are available on the {@link Trigger} class.
-   */
+  
+ 
   public void configureBindings() {
 
-    // [Test] Align to heading of 90 when right bumper is pressed
-    // this.driverController.rightBumper().onTrue(
-    //   new AlignToHeadingCommand(() -> drivetrain.getHeadingDeg(), () -> drivetrain.getDesiredHeading(), drivetrain));
-    // this.driverController.rightBumper().onTrue(
-    //   new AlignToPointCommand(() -> drivetrain.getPose(), () -> drivetrain.getDesiredPose(), drivetrain));
-
-    List<Pose2d> points = List.of(new Pose2d(1, 0, new Rotation2d()), new Pose2d(2, 1, new Rotation2d()));
-
-    this.driverController.rightBumper().onTrue(
-      new FollowPathCommand(() -> drivetrain.getPose(), points, 0, drivetrain));
   }
 
   /**
@@ -109,19 +82,6 @@ public class RobotContainer {
       return input.getAsDouble() * scale;
   }
 
-  /**
-   * HALTS all chassis motors
-   */
-  public void EMERGENCY_STOP() {
-    this.drivetrain.killSwitch();
-  }
-
-  /**
-   * Resets chassis state
-   */
-  public Command CHASSIS_RESET() {
-    return this.drivetrain.releaseBrakeMode();
-  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -129,6 +89,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
     //return autoChooser.getSelected();
 
     // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
@@ -138,7 +99,6 @@ public class RobotContainer {
     // // split up the command string and make an auto with it
     // return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
 
-    return Commands.runOnce(() -> drivetrain.resetPose(new Pose2d())).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("test")));
   }
 
   /*

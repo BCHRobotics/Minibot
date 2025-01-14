@@ -30,6 +30,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    this.autonomousCommand = this.robotContainer.getAutonomousCommand();
+    
+    if (this.autonomousCommand != null){
+      this.autonomousCommand.schedule();
+    }
+    
     // Configure default commands and condition bindings on robot startup
     this.robotContainer = new RobotContainer();
     DataLogManager.start();
@@ -61,7 +67,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    this.robotContainer.EMERGENCY_STOP();
+    
   }
 
   @Override
@@ -89,7 +95,7 @@ public class Robot extends TimedRobot {
     if (this.autonomousCommand != null) {
       this.autonomousCommand.cancel();
     }
-    this.robotContainer.CHASSIS_RESET().schedule();
+    
   }
 
   /** This function is called periodically during operator control. */
