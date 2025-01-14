@@ -136,7 +136,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-     return autoChooser.getSelected();
+     //return autoChooser.getSelected();
+
+     return Commands.runOnce(() -> drivetrain.resetPose(new Pose2d())).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("test")));
+
 
     // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
 
@@ -145,8 +148,7 @@ public class RobotContainer {
     // // split up the command string and make an auto with it
     // return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
 
-    return Commands.runOnce(() -> drivetrain.resetPose(new Pose2d())).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("test")));
-  }
+    }
 
   /*
    * Resets the gyro heading of the robot
