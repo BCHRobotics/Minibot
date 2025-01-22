@@ -28,15 +28,15 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        //configureButtonBindings();
+        configureButtonBindings();
         configureDefaultCommands();
     }
-     /**
-        private void configureButtonBindings() {
+     
+    private void configureButtonBindings() {
         this.driverController.leftTrigger()
         .whileTrue(this.m_drivetrain.)
     } 
-*/
+
     private void configureDefaultCommands() {
         
         Command drivingCommand = m_drivetrain.arcadeDriveCommand(

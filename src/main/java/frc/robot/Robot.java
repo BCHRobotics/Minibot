@@ -18,7 +18,6 @@ public class Robot extends TimedRobot {
 @Override
 public void robotInit() { 
   robotContainer = new RobotContainer();
-  //motorController = new CANSparkMax(1, MotorType.kBrushed);
    
 }
 
