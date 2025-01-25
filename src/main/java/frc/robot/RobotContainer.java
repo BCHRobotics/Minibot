@@ -3,8 +3,9 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 //import frc.robot.subsystems.Drivetrain;
+
 import frc.robot.subsystems.Elevator;
 
 /** 
@@ -21,11 +22,31 @@ import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
 
-    private final Elevator m_elevator = new Elevator();
+    private final Elevator elevator = new Elevator();
+
+    private final CommandXboxController driverController = new CommandXboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+    
 
     public Elevator getElevator() {
-        return m_elevator;
+        return elevator;
     }
+
+    public RobotContainer() {
+        configureButtonBindings();
+    }
+
+    private void configureButtonBindings() {
+        this.driverController.a()
+        .onTrue(elevator.moveLevel("L1"));
+        this.driverController.b()
+        .onTrue(elevator.moveLevel("L2"));
+        this.driverController.y()
+        .onTrue(elevator.moveLevel("L3"));
+        this.driverController.x()
+        .onTrue(elevator.moveLevel("DOWN"));
+    }
+
+ 
 
 
 

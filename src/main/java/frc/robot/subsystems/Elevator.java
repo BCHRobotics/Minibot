@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import edu.wpi.first.wpilibj2.command.Command;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -69,20 +70,14 @@ public class Elevator extends SubsystemBase{
         pidController.setTolerance(0.5);
         
         //setting limits for safety
+        SparkMaxConfig resetConfig = new SparkMaxConfig();
         resetConfig.idleMode(IdleMode.kBrake);
         resetConfig.smartCurrentLimit(40);
         resetConfig.voltageCompensation(12.0);
         
-        configureMotors();
-    }
-    
-    private void configureMotors() {
-        var config = new SparkMaxConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.smartCurrentLimit(40);
-        config.voltageCompensation(12.0);
         primaryMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
         followerMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
+    
     }
     
     private void handleBottomLimit() {
@@ -100,7 +95,7 @@ public class Elevator extends SubsystemBase{
             ElevatorConstants.bottomPos, 
             ElevatorConstants.topPos);
     }
-
+    
 
     public void stopMotors() {
         primaryMotor.set(0);
@@ -123,6 +118,32 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putNumber("Elevator Position", currentPosition);
         SmartDashboard.putNumber("Elevator Setpoint", setpoint);
         SmartDashboard.putNumber("Elevator PID Outpput", output);
+    }
+
+    
+    public Command moveLevel(String level) {
+        return run(()-> {
+            switch (level) {
+                case "L1":
+                    setTargetPosition(ElevatorConstants.L1);
+                    break;
+                
+                case "L2":
+                    setTargetPosition(ElevatorConstants.L2);
+                    break;
+                
+                case "L3":
+                    setTargetPosition(ElevatorConstants.L3);
+                    break;
+                case "DOWN":
+                    setTargetPosition(ElevatorConstants.bottomPos);
+                    break;
+            }
+        }).andThen(() -> stopMotors());
+    }
+
+    public boolean atSetpoint() {
+        return pidController.atSetpoint();
     }
 
 }
