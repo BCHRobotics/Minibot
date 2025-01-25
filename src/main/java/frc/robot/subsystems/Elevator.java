@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 import frc.robot.Constants.ElevatorConstants;
@@ -25,17 +24,14 @@ public class Elevator extends SubsystemBase{
     private final RelativeEncoder encoder;
     private final DigitalInput bottomLimit;
     private final PIDController pidController;
-    // private final TrapezoidProfile.Constraints constraints;
-    // private TrapezoidProfile.State goalState;
-    // private TrapezoidProfile.State currentState;
-    // private final TrapezoidProfile profile;
 
-    private ElevatorPosition currentTarget = ElevatorPosition.DOWN;
-    private boolean isHomed = false;
-    private double setpoint = 0.0;
+    private double setpoint = 0;
+
+    //private ElevatorPosition currentTarget = ElevatorPosition.DOWN;
+    
     SparkMaxConfig resetConfig = new SparkMaxConfig();
     double currentPos;
-
+/* 
     public enum ElevatorPosition {
         DOWN(ElevatorConstants.downPos),
         POSITION_1(ElevatorConstants.L1),
@@ -48,7 +44,7 @@ public class Elevator extends SubsystemBase{
             this.positionInches = positionInches;
         }
     }
- 
+ */
     public Elevator() {
         
         primaryMotor = new SparkMax(ElevatorConstants.leftElevatorID, MotorType.kBrushless);
@@ -63,36 +59,48 @@ public class Elevator extends SubsystemBase{
         encoder = primaryMotor.getEncoder();
         bottomLimit = new DigitalInput(ElevatorConstants.limitSwitchPort);
         
-        //setting limits for safety
-        resetConfig.idleMode(IdleMode.kBrake);
-        resetConfig.smartCurrentLimit(40);
-        resetConfig.voltageCompensation(12.0);
-
+        
         pidController = new PIDController(
             ElevatorConstants.ElevatorkP,
             ElevatorConstants.ElevatorkI,
             ElevatorConstants.ElevatorkD
         );
-        
+         
         pidController.setTolerance(0.5);
-
+        
+        //setting limits for safety
+        resetConfig.idleMode(IdleMode.kBrake);
+        resetConfig.smartCurrentLimit(40);
+        resetConfig.voltageCompensation(12.0);
+        
         configureMotors();
     }
     
     private void configureMotors() {
+        var config = new SparkMaxConfig();
+        config.idleMode(IdleMode.kBrake);
+        config.smartCurrentLimit(40);
+        config.voltageCompensation(12.0);
         primaryMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
         followerMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
     }
     
     private void handleBottomLimit() {
-        stopMotors();
-        encoder.setPosition(ElevatorConstants.bottomPos * ElevatorConstants.countsPerInch);
-        isHomed = true;
-        setpoint = ElevatorConstants.bottomPos;
-        //currentState = new TrapezoidProfile.State(ElevatorConstants.bottomPos, 0);
-        //goalState = new TrapezoidProfile.State(ElevatorConstants.bottomPos, 0);
-        pidController.reset();
+        if(!bottomLimit.get()) {
+            stopMotors();
+            encoder.setPosition(ElevatorConstants.bottomPos * ElevatorConstants.countsPerInch);
+            setpoint = ElevatorConstants.bottomPos;
+            pidController.reset();
+        }
+    } 
+    
+    public void setTargetPosition(double positionInches) {
+        setpoint = MathUtil.clamp(
+            positionInches, 
+            ElevatorConstants.bottomPos, 
+            ElevatorConstants.topPos);
     }
+
 
     public void stopMotors() {
         primaryMotor.set(0);
@@ -100,37 +108,22 @@ public class Elevator extends SubsystemBase{
     }
 
 
-    public void homeElevator() {
-        primaryMotor.set(-0.1); // Slow downward movement until bottom limit is hit
-        if (bottomLimit.get()) {
-            handleBottomLimit();
-        }
+    public void run() {
+        double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
+
+        handleBottomLimit();
+
+        double pidOutput = pidController.calculate(currentPosition, setpoint);
+
+        double feedForward = ElevatorConstants.feedForward*Math.signum(setpoint-currentPosition);
+        double output = pidOutput + feedForward;
+
+        primaryMotor.set(output);
+
+        SmartDashboard.putNumber("Elevator Position", currentPosition);
+        SmartDashboard.putNumber("Elevator Setpoint", setpoint);
+        SmartDashboard.putNumber("Elevator PID Outpput", output);
     }
 
-    public void run() {
-        currentPos = encoder.getPosition() / ElevatorConstants.countsPerInch;
-        /* 
-        currentState = profile.calculate(0.020, currentState, goalState); // 20ms control loop
-
-        if (bottomLimit.get()) {
-            handleBottomLimit();
-        }
-
-        if (getHeightInches() > ElevatorConstants.maxPos) {
-            stopMotors();
-        }
-        
-        double pidOutput = pidController.calculate(getHeightInches(), currentState.position);
-        double ff = calculateFeedForward(currentState);
-        
-        double outputPower = MathUtil.clamp(
-            pidOutput + ff,
-            -ElevatorConstants.max_output,
-            ElevatorConstants.max_output   
-            );     
-            
-            primaryMotor.set(outputPower);
-    */
-        }
 }
 

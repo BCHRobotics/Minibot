@@ -26,7 +26,9 @@ public void robotInit() {
 public void robotPeriodic() { 
   CommandScheduler.getInstance().run();
 
-  robotContainer.getElevator();
+  robotContainer.getElevator().run();
+
+  
    
 }
 
@@ -39,7 +41,9 @@ public void teleopInit() {
 /** This method is called periodically during teleop mode. */
 @Override
 public void teleopPeriodic() { 
-  robotContainer.getElevator().run();
+  robotContainer.getElevator();
+
+  
      
 }
 
