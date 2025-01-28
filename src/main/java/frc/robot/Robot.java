@@ -6,17 +6,23 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
+  private RobotContainer robotContainer;
+
+  private Timer timer;
 
 
  /** This method is called once when the robot starts up. */
 @Override
 public void robotInit() { 
+  robotContainer = new RobotContainer();
+  timer = new Timer();
    
 }
 
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() { 
+  CommandScheduler.getInstance().run();
    
 }
 
@@ -47,12 +53,20 @@ public void autonomousInit() {
 /** This method is called once each time the robot enters Disabled mode. */
 @Override
 public void disabledInit() { 
+  robotContainer.getDrivetrain().brake();
+
+  timer.reset();
+  timer.start();
    
 }
 
 /** This method is called periodically during disabled mode. */
 @Override
 public void disabledPeriodic() { 
+  if (timer.hasElapsed(3.0)) {
+    robotContainer.getDrivetrain().releaseBrakes();
+    timer.stop(); 
+  }
    
 }
 

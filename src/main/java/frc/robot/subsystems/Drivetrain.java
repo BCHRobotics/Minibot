@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.jni.CANSparkJNI;
+import com.revrobotics.jni.CANSparkMaxJNI;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
