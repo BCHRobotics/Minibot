@@ -6,7 +6,7 @@ import com.revrobotics.jni.CANSparkMaxJNI;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
-//import com.studica.frc.TitanQuad;
+// import com.studica.frc.TitanQuad;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.CAN;
@@ -29,46 +29,49 @@ public class Drivetrain extends SubsystemBase {
     private final TitanQuadMotor right_bottomMotor;
 
 
-    private final DifferentialDrive differentialDrive;
+    //private final DifferentialDrive differentialDrive;
     
     public Drivetrain() {
         this.left_topMotor = new TitanQuadMotor(Constants.CHASSIS.LEFT_TOP_MOTOR_ID);
         this.right_topMotor = new TitanQuadMotor(Constants.CHASSIS.LEFT_BOTTOM_MOTOR_ID);
         this.left_bottomMotor = new TitanQuadMotor(Constants.CHASSIS.RIGHT_TOP_MOTOR_ID);
         this.right_bottomMotor = new TitanQuadMotor(Constants.CHASSIS.RIGHT_BOTTOM_MOTOR_ID);
-    
-        left_topMotor.set(-0.5);
-  
-        left_topMotor.setInverted(true);
-        right_bottomMotor.setInverted(true);
-        
-        left_bottomMotor.setInverted(false);
-        right_topMotor.setInverted(false);
+    }
 
-        this.left_topMotor.setIdleMode(TitanQuadMotor.IdleMode.kCoast);
-        this.right_topMotor.setIdleMode(TitanQuadMotor.IdleMode.kCoast);
-        this.left_bottomMotor.setIdleMode(TitanQuadMotor.IdleMode.kCoast);
-        this.right_bottomMotor.setIdleMode(TitanQuadMotor.IdleMode.kCoast);
-        
-        
-        //this.differentialDrive = new DifferentialDrive();
-        
-        this.differentialDrive.setMaxOutput(0.25); // Limit maximum speed
-        this.differentialDrive.setSafetyEnabled(true); // Enable safety features
-        this.differentialDrive.setExpiration(0.1); // Motor safety timeout
-        
+    public void drive(double forward, double strafe, double rotation) {
+        double leftTopSpeed = forward + strafe + rotation;
+        double rightTopSpeed = forward - strafe - rotation;
+        double leftBottomSpeed = forward - strafe + rotation;
+        double rightBottomSpeed = forward + strafe - rotation;
+
+        // Set the motor speeds without normalization
+        this.left_topMotor.set(leftTopSpeed);
+        this.right_topMotor.set(rightTopSpeed);
+        this.left_bottomMotor.set(leftBottomSpeed);
+        this.right_bottomMotor.set(rightBottomSpeed);
     }
 
     public Command brake() {
         return runOnce(() -> {
-            this.left_topMotor.setIdleMode(TitanQuadMotor.IdleMode.kBrake);
-            this.right_topMotor.setIdleMode(TitanQuadMotor.IdleMode.kBrake);
-            this.left_bottomMotor.setIdleMode(TitanQuadMotor.IdleMode.kBrake);
-            this.right_bottomMotor.setIdleMode(TitanQuadMotor.IdleMode.kBrake);
+            this.left_topMotor.set(0);
+            this.right_topMotor.set(0);
+            this.left_bottomMotor.set(0);
+            this.right_bottomMotor.set(0);
         
         });
     }
 
+    public Command releaseBrakes() {
+        return runOnce(()-> {
+            this.left_topMotor.set(1);
+            this.right_topMotor.set(1);
+            this.left_topMotor.set(1);
+            this.right_topMotor.set(1);
+        });
+
+    }
+
+    /*
     public Command releaseBrakes() {
         return runOnce(() -> {
             this.left_topMotor.setIdleMode(TitanQuadMotor.IdleMode.kCoast);
@@ -78,18 +81,19 @@ public class Drivetrain extends SubsystemBase {
            
         });
     }
+*/
 
-    public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
-        return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
+    public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation) {
+        return run(() -> this.drive(forward.getAsDouble(), strafe.getAsDouble(), rotation.getAsDouble()));
     }
-
+/*
     public Command driveForward(DoubleSupplier forward, DoubleSupplier turn) {
         return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble(), turn.getAsDouble()));
     }
-
+*/
     private static class TitanQuadMotor {
         private final CAN motorCAN;
-        private boolean isInverted = false;
+        private boolean setInverted = false;
     
         public TitanQuadMotor(int canId) {
             this.motorCAN = new CAN(canId);
@@ -99,7 +103,7 @@ public class Drivetrain extends SubsystemBase {
             //left_topMotor.set(0.5);
 
         }
-    }
 
+    }
 
 }
