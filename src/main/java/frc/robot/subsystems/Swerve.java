@@ -1,18 +1,11 @@
-import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
-
-SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
-
 import java.io.File;
 import edu.wpi.first.wpilibj.Filesystem;
-import swervelib.parser.SwerveParser;
-import swervelib.SwerveDrive;
 import edu.wpi.first.math.util.Units;
 
 
-double maximumSpeed = Units.feetToMeters(4.5)
+double maximumSpeed = Units.feetToMeters(4.5);
 File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
-SwerveDrive  swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed);
+SwerveDrive swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed);
 
   /**
    * Command to drive the robot using translative values and heading as a setpoint.
