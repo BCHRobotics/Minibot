@@ -7,7 +7,7 @@ import frc.robot.subsystems.Drivetrain;
 /** 
  * The RobotContainer is where we set up everything for the robot: 
  * 
- * - Creating Subsystem Objects (ex. drivetrain subsystem, elevator subystem) 
+ * - Creating Subsystem Objects (ex. drivetrain subsystem, elevator subsystem 
  *         NOTE: Jerry only has drivetrain subsystem 
  * 
  * - Creating controller for robot (xbox controller), and getting it's joystick values
