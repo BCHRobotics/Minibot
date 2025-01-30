@@ -8,10 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
-import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
 
 double maximumSpeed = Units.feetToMeters(4.5);
