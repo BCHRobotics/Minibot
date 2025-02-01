@@ -1,16 +1,14 @@
 import java.io.File;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.math.util.Units;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
-import edu.wpi.first.math.util.Units;
-
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 double maximumSpeed = Units.feetToMeters(4.5)
 File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
 SwerveDrive  swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed);
-
-import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
