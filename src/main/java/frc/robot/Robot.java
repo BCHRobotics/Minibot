@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 
-public class Robot extends TimedRobot {
+public class Robot extends TimedRobot {  
 
+  private RobotContainer robotContainer; 
+  private Timer timer; 
 
   private final int LEFT_MOTOR_ID = 13;
   private final int RIGHT_MOTOR_ID = 11; 
@@ -27,7 +29,6 @@ public class Robot extends TimedRobot {
 
     private XboxController driverController; 
 
-    private Timer timer;
 
 
 
@@ -38,6 +39,7 @@ public class Robot extends TimedRobot {
 @Override
 public void robotInit() { 
 
+  robotContainer = new RobotContainer();
   timer = new Timer();
 
   // Initialzir motors
@@ -84,6 +86,9 @@ public void teleopInit() {
 /** This method is called periodically during teleop mode. */
 @Override
 public void teleopPeriodic() { 
+
+  CommandScheduler.getInstance().run(); 
+
   robotDrive.arcadeDrive(-driverController.getLeftY(), -driverController.getRightX());
 
 
@@ -114,6 +119,8 @@ public void autonomousInit() {
 /** This method is called once each time the robot enters Disabled mode. */
 @Override
 public void disabledInit() { 
+  robotContainer.getDrivetrain().brake();
+
    this.leftMotor.setIdleMode(IdleMode.kBrake);
    this.rightMotor.setIdleMode(IdleMode.kBrake);
 
@@ -129,6 +136,12 @@ public void disabledPeriodic() {
     this.leftMotor.setIdleMode(IdleMode.kCoast);
     this.rightMotor.setIdleMode(IdleMode.kCoast);
     timer.stop();
+
+
+    if (timer.hasElapsed(3.0)) {
+      robotContainer.getDrivetrain().releaseBrakes();
+      timer.stop();
+    }
    }
 }
 

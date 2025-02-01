@@ -26,7 +26,12 @@ public class Drivetrain extends SubsystemBase {
   
       this.leftMotor = new CANSparkMax(13, MotorType.kBrushed);
       this.rightMotor = new CANSparkMax(11, MotorType.kBrushed);
-  
+      this.differentialDrive = new DifferentialDrive(leftMotor, rightMotor); 
+
+      this.differentialDrive.setMaxOutput(0.25);
+      this.differentialDrive.setSafetyEnabled(true);
+      this.differentialDrive.setExpiration(0.1);
+
        // Reset motor controllers to factory defaults
        this.leftMotor.restoreFactoryDefaults();
        this.rightMotor.restoreFactoryDefaults();
@@ -49,13 +54,33 @@ public class Drivetrain extends SubsystemBase {
        this.differentialDrive.setExpiration(0.1);
 
   }
+  private double speedMultiplier; 
 
   public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {
-      return null;
-      
+      return run(() -> this.differentialDrive.arcadeDrive(forward.getAsDouble() * speedMultiplier, turn.getAsDouble() * speedMultiplier ));
   }
 
+  public Command brake() {
+    return runOnce(() -> {
+      this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+      this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    });
+  }
 
+  public Command releaseBrakes() {
+    return runOnce(() -> {
+      this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+      this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+  });
+  }
+
+  public Command slowMode() {
+    return runOnce (() -> speedMultiplier = 0.5);
+  }
+
+  public Command normalMode() {
+    return runOnce (() -> speedMultiplier = 1);
+  }
 }
 
 
