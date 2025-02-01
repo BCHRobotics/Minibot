@@ -6,7 +6,7 @@ import swervelib.SwerveDrive;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-double maximumSpeed = Units.feetToMeters(4.5)
+double maximumSpeed = Units.feetToMeters(4.5);
 File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
 SwerveDrive  swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed);
 
@@ -25,7 +25,11 @@ SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
                               DoubleSupplier headingY)
   {
     return run(() -> {
-
+      swerveDrive.drive(new Translation2d(translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
+      translationY.getAsDouble() * swerveDrive.getMaximumVelocity()),
+      angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
+      true,
+      false);
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
                                                                                  translationY.getAsDouble()), 0.8);
 
@@ -36,24 +40,4 @@ SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
                                                                       swerveDrive.getOdometryHeading().getRadians(),
                                                                       swerveDrive.getMaximumVelocity()));
     });
-  }
-
-  /**
-   * Command to drive the robot using translative values and heading as angular velocity.
-   *
-   * @param translationX     Translation in the X direction.
-   * @param translationY     Translation in the Y direction.
-   * @param angularRotationX Rotation of the robot to set
-   * @return Drive command.
-   */
-  public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX)
-  {
-    return run(() -> {
-      // Make the robot move
-      swerveDrive.drive(new Translation2d(translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
-                                          translationY.getAsDouble() * swerveDrive.getMaximumVelocity()),
-                        angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
-                        true,
-                        false);
-    });
-  }
+  };
