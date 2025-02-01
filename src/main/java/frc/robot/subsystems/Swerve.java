@@ -6,8 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
+import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
@@ -21,7 +21,6 @@ SwerveDrive  swerveDrive = new SwerveParser(directory).createSwerveDrive(maximum
 public class Swerve extends SubsystemBase{
     /**
    * Command to drive the robot using translative values and heading as a setpoint.
-   *
    * @param translationX Translation in the X direction.
    * @param translationY Translation in the Y direction.
    * @param headingX     Heading X to calculate angle of the joystick.
