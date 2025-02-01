@@ -30,7 +30,7 @@ public class Elevator extends SubsystemBase{
 
     //private ElevatorPosition currentTarget = ElevatorPosition.DOWN;
     
-    SparkMaxConfig resetConfig = new SparkMaxConfig();
+    //SparkMaxConfig resetConfig = new SparkMaxConfig();
     double currentPos;
 /* 
     public enum ElevatorPosition {
@@ -90,16 +90,20 @@ public class Elevator extends SubsystemBase{
     } 
     
     public void setTargetPosition(double positionInches) {
-        setpoint = MathUtil.clamp(
-            positionInches, 
-            ElevatorConstants.bottomPos, 
-            ElevatorConstants.topPos);
+        if (!bottomLimit.get()) {
+            setpoint = ElevatorConstants.bottomPos;
+        } else {
+            setpoint = MathUtil.clamp(
+                positionInches, 
+                ElevatorConstants.bottomPos, 
+                ElevatorConstants.topPos);
+        }
     }
     
 
     public void stopMotors() {
         primaryMotor.set(0);
-        pidController.reset();
+        //pidController.reset();
     }
 
 
@@ -117,7 +121,7 @@ public class Elevator extends SubsystemBase{
 
         SmartDashboard.putNumber("Elevator Position", currentPosition);
         SmartDashboard.putNumber("Elevator Setpoint", setpoint);
-        SmartDashboard.putNumber("Elevator PID Outpput", output);
+        SmartDashboard.putNumber("Elevator PID Output", output);
     }
 
     
@@ -139,7 +143,7 @@ public class Elevator extends SubsystemBase{
                     setTargetPosition(ElevatorConstants.bottomPos);
                     break;
             }
-        }).andThen(() -> stopMotors());
+        });//.andThen(() -> stopMotors());
     }
 
     public boolean atSetpoint() {

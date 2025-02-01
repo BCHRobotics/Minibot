@@ -41,7 +41,7 @@ public void teleopInit() {
 /** This method is called periodically during teleop mode. */
 @Override
 public void teleopPeriodic() { 
-  robotContainer.getElevator();
+  //robotContainer.getElevator();
 
   
      
