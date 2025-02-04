@@ -43,11 +43,15 @@ public class RobotContainer {
         this.driverController.rightBumper()
         .whileTrue(this.m_drivetrain.slowMode())
         .onFalse(this.m_drivetrain.normalMode());
-    }
+
+        this.driverController.a()
+        .whileTrue(this.m_drivetrain.arcadeDriveCommand(() -> 1.0, () -> 0.0))
+        .onFalse(this.m_drivetrain.releaseBrakes());   
+     }
 
     private void configureDefaultCommands() {
         Command drivingCommand = m_drivetrain.arcadeDriveCommand(
-            () -> -this.driverController.getLeftX(),
+            () -> -this.driverController.getLeftY(),
             () -> -this.driverController.getRightX()
         );
             m_drivetrain.setDefaultCommand(drivingCommand);

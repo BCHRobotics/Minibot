@@ -20,17 +20,12 @@ public class Drivetrain extends SubsystemBase {
 
   private final CANSparkMax leftMotor;
   private final CANSparkMax rightMotor; 
-  private DifferentialDrive differentialDrive;
+  private final DifferentialDrive differentialDrive;
   
     public Drivetrain() {
   
-      this.leftMotor = new CANSparkMax(13, MotorType.kBrushed);
-      this.rightMotor = new CANSparkMax(11, MotorType.kBrushed);
-      this.differentialDrive = new DifferentialDrive(leftMotor, rightMotor); 
-
-      this.differentialDrive.setMaxOutput(0.25);
-      this.differentialDrive.setSafetyEnabled(true);
-      this.differentialDrive.setExpiration(0.1);
+      this.leftMotor = new CANSparkMax(Constants.CHASSIS.LEFT_MOTOR_ID, MotorType.kBrushless);
+      this.rightMotor = new CANSparkMax(Constants.CHASSIS.RIGHT_MOTOR_ID, MotorType.kBrushless);
 
        // Reset motor controllers to factory defaults
        this.leftMotor.restoreFactoryDefaults();
@@ -53,7 +48,22 @@ public class Drivetrain extends SubsystemBase {
        this.differentialDrive.setSafetyEnabled(true);
        this.differentialDrive.setExpiration(0.1);
 
+      
+    
+
+       
+  
+
+    }
+
+    public void printMotorInfo() {
+      System.out.println("Left Motor Temperature: " + this.leftMotor.getMotorTemperature());
+      System.out.println("Right Motor Temperature: " + this.rightMotor.getMotorTemperature());
+      System.out.println("Left Motor Bus Voltage: " + this.leftMotor.getBusVoltage());
+      System.out.println("Right Motor Bus Voltage: " + this.rightMotor.getBusVoltage());
   }
+
+
   private double speedMultiplier; 
 
   public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier turn) {

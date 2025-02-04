@@ -4,14 +4,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.subsystems.Drivetrain;
 
 
 public class Robot extends TimedRobot {  
@@ -19,20 +12,8 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer; 
   private Timer timer; 
 
-  private final int LEFT_MOTOR_ID = 13;
-  private final int RIGHT_MOTOR_ID = 11; 
-
-    private CANSparkMax leftMotor;
-    private CANSparkMax rightMotor; 
-
-    private DifferentialDrive robotDrive; 
-
-    private XboxController driverController; 
 
 
-
-
- 
 
 
  /** This method is called once when the robot starts up. */
@@ -42,38 +23,15 @@ public void robotInit() {
   robotContainer = new RobotContainer();
   timer = new Timer();
 
+
   // Initialzir motors
-  this.leftMotor = new CANSparkMax(LEFT_MOTOR_ID, MotorType.kBrushless);
-  this.rightMotor = new CANSparkMax(RIGHT_MOTOR_ID, MotorType.kBrushless);
-  this.robotDrive = new DifferentialDrive(this.leftMotor, this.rightMotor);
   
-  this.driverController = new XboxController(0);
-
-
-  this.robotDrive.setMaxOutput(0.25); // Limit max speed for safety
-  this.robotDrive.setSafetyEnabled(true); // Enable motor safety on the drive object
-  this.robotDrive.setExpiration(0.1); // Reset motor controllers to factory defaults
-      this.leftMotor.restoreFactoryDefaults();
-      this.rightMotor.restoreFactoryDefaults();
-  
-       
-      // Set current limits for the motors to prevent overloading
-      this.leftMotor.setSmartCurrentLimit(60, 20);
-      this.rightMotor.setSmartCurrentLimit(60, 20);
-  
-      this.leftMotor.setInverted(true);
-      this.rightMotor.setInverted(false);
-  
-      // Set motor modes (for braking, etc.)
-      this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-      this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
 }
 
 /** This method is called periodically, regardless of the robot mode. */
 @Override
 public void robotPeriodic() { 
-   
-
+  robotContainer.getDrivetrain().printMotorInfo();
 
 }
 
@@ -87,19 +45,6 @@ public void teleopInit() {
 @Override
 public void teleopPeriodic() { 
 
-  CommandScheduler.getInstance().run(); 
-
-  robotDrive.arcadeDrive(-driverController.getLeftY(), -driverController.getRightX());
-
-
-
-  if (driverController.getLeftBumper()) {
-    this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-  } else {
-    this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-  }
 
 }
 
@@ -121,9 +66,6 @@ public void autonomousInit() {
 public void disabledInit() { 
   robotContainer.getDrivetrain().brake();
 
-   this.leftMotor.setIdleMode(IdleMode.kBrake);
-   this.rightMotor.setIdleMode(IdleMode.kBrake);
-
 
    timer.reset();
    timer.start();
@@ -132,11 +74,6 @@ public void disabledInit() {
 /** This method is called periodically during disabled mode. */
 @Override
 public void disabledPeriodic() { 
-   if (timer.hasElapsed(3.0)) {
-    this.leftMotor.setIdleMode(IdleMode.kCoast);
-    this.rightMotor.setIdleMode(IdleMode.kCoast);
-    timer.stop();
-
 
     if (timer.hasElapsed(3.0)) {
       robotContainer.getDrivetrain().releaseBrakes();
@@ -145,4 +82,3 @@ public void disabledPeriodic() {
    }
 }
 
-}
