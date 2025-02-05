@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.math.util.Units;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity
+
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -31,9 +32,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param headingY     Heading Y to calculate angle of the joystick.
    * @return Drive command.
    */
-    public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX,
-                              DoubleSupplier headingY)
-    {
       return run(() -> {
         swerveDrive.drive(new Translation2d(translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
         translationY.getAsDouble() * swerveDrive.getMaximumVelocity()),
