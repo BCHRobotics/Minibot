@@ -117,6 +117,8 @@ public class Elevator extends SubsystemBase{
         double feedForward = ElevatorConstants.feedForward*Math.signum(setpoint-currentPosition);
         double output = pidOutput + feedForward;
 
+        output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
+        
         primaryMotor.set(output);
 
         SmartDashboard.putNumber("Elevator Position", currentPosition);
