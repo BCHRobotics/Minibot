@@ -50,9 +50,10 @@ public class Elevator extends SubsystemBase{
         
         primaryMotor = new SparkMax(ElevatorConstants.leftElevatorID, MotorType.kBrushless);
         followerMotor = new SparkMax(ElevatorConstants.rightElevatorID, MotorType.kBrushless);
-        
+
         SparkMaxConfig followerConfig = new SparkMaxConfig();
-        followerConfig.follow(primaryMotor, false);
+        //primaryMotor.setInverted(true);
+        followerConfig.follow(primaryMotor, true);
 
         //configure motors
         followerMotor.configure(followerConfig, null, null); 
@@ -85,35 +86,41 @@ public class Elevator extends SubsystemBase{
             stopMotors();
             encoder.setPosition(ElevatorConstants.bottomPos * ElevatorConstants.countsPerInch);
             setpoint = ElevatorConstants.bottomPos;
-            pidController.reset();
+            
+            if (setpoint == ElevatorConstants.bottomPos) {
+                pidController.reset();
         }
+    }
     } 
     
     public void setTargetPosition(double positionInches) {
+        /* 
         if (!bottomLimit.get()) {
             setpoint = ElevatorConstants.bottomPos;
-        } else {
-            setpoint = MathUtil.clamp(
-                positionInches, 
-                ElevatorConstants.bottomPos, 
-                ElevatorConstants.topPos);
-        }
+        } else { }
+         */
+        setpoint = MathUtil.clamp(
+            positionInches, 
+            ElevatorConstants.bottomPos, 
+            ElevatorConstants.topPos);
     }
     
 
     public void stopMotors() {
         primaryMotor.set(0);
-        //pidController.reset();
+        pidController.reset();
     }
 
 
     public void run() {
         double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
-
-        handleBottomLimit();
-
-        double pidOutput = pidController.calculate(currentPosition, setpoint);
-
+        
+        double pidOutput;
+        if (setpoint == ElevatorConstants.bottomPos) {
+            pidOutput = pidController.calculate(currentPosition, setpoint);
+        } else {
+            pidOutput = pidController.calculate(currentPosition, setpoint);
+        }
         double feedForward = ElevatorConstants.feedForward*Math.signum(setpoint-currentPosition);
         double output = pidOutput + feedForward;
 
@@ -121,14 +128,16 @@ public class Elevator extends SubsystemBase{
         
         primaryMotor.set(output);
 
-        SmartDashboard.putNumber("Elevator Position", currentPosition);
-        SmartDashboard.putNumber("Elevator Setpoint", setpoint);
-        SmartDashboard.putNumber("Elevator PID Output", output);
+        handleBottomLimit();
+
+        System.out.println("Elevator Position" + currentPosition);
+        System.out.println("Elevator Setpoint" +  setpoint);
+        System.out.println("Elevator PID Output" + output);
     }
 
     
     public Command moveLevel(String level) {
-        return run(()-> {
+        return runOnce(()-> {
             switch (level) {
                 case "L1":
                     setTargetPosition(ElevatorConstants.L1);
@@ -139,6 +148,7 @@ public class Elevator extends SubsystemBase{
                     break;
                 
                 case "L3":
+                    System.out.println("Working");
                     setTargetPosition(ElevatorConstants.L3);
                     break;
                 case "DOWN":
