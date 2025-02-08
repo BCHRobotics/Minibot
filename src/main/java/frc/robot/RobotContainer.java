@@ -44,6 +44,9 @@ public class RobotContainer {
         .onTrue(elevator.moveLevel("L3"));
         this.driverController.x()
         .onTrue(elevator.moveLevel("DOWN"));
+
+        this.driverController.leftTrigger()
+        .onTrue(elevator.moveLevel("L0"));
     }
 
  

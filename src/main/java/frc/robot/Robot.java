@@ -12,12 +12,14 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
+  private Timer timer;
 
 
  /** This method is called once when the robot starts up. */
 @Override
 public void robotInit() { 
   robotContainer = new RobotContainer();
+  timer = new Timer();
    
 }
 
