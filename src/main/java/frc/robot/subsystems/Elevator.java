@@ -1,5 +1,4 @@
 package frc.robot.subsystems;
-//import frc.robot.Constants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
@@ -26,39 +25,26 @@ public class Elevator extends SubsystemBase{
     private final PIDController pidController;
 
     private double setpoint = 0;
-
-    //private ElevatorPosition currentTarget = ElevatorPosition.DOWN;
-    
-    //SparkMaxConfig resetConfig = new SparkMaxConfig();
     double currentPos;
-/* 
-    public enum ElevatorPosition {
-        DOWN(ElevatorConstants.downPos),
-        POSITION_1(ElevatorConstants.L1),
-        POSITION_2(ElevatorConstants.L2),
-        POSITION_3(ElevatorConstants.L3);
 
-        public final double positionInches;
-        
-        ElevatorPosition(double positionInches) {
-            this.positionInches = positionInches;
-        }
-    }
- */
     public Elevator() {
         
+        //Creating new motors, encoders, and PID controllers
+        //motors
         primaryMotor = new SparkMax(ElevatorConstants.leftElevatorID, MotorType.kBrushless);
         followerMotor = new SparkMax(ElevatorConstants.rightElevatorID, MotorType.kBrushless);
         
+        //encoder
         encoder = primaryMotor.getEncoder();
         bottomLimit = new DigitalInput(ElevatorConstants.limitSwitchPort);
         
+        //PID controller
         pidController = new PIDController(
             ElevatorConstants.ElevatorkP,
             ElevatorConstants.ElevatorkI,
             ElevatorConstants.ElevatorkD
         );
-         
+        
         pidController.setTolerance(0.5);
         
         //setting limits for safety
@@ -67,19 +53,19 @@ public class Elevator extends SubsystemBase{
         resetConfig.smartCurrentLimit(40);
         resetConfig.voltageCompensation(12.0);
         
+        //reseting factory defaults
         primaryMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
         followerMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
-
+        
+        //configuring follower motor (follower follow main)
         SparkMaxConfig followerConfig = new SparkMaxConfig();
-        //primaryMotor.setInverted(true);
         followerConfig.follow(primaryMotor, false);
-
-        //configure motors
         followerMotor.configure(followerConfig, null, null); 
-
     }
     
+    //run this when the elevatory is at the bottom
     private void handleBottomLimit() {
+        //requires bottom limit switch
         if(!bottomLimit.get()) {
             stopMotors();
             encoder.setPosition(ElevatorConstants.bottomPos * ElevatorConstants.countsPerInch);
@@ -92,49 +78,41 @@ public class Elevator extends SubsystemBase{
     } 
     
     public void setTargetPosition(double positionInches) {
-        /* 
-        if (!bottomLimit.get()) {
-            setpoint = ElevatorConstants.bottomPos;
-        } else { }
-         */
+        //set limits on the target position
         setpoint = MathUtil.clamp(
             positionInches, 
             ElevatorConstants.bottomPos, 
             ElevatorConstants.topPos);
     }
-    
 
     public void stopMotors() {
         primaryMotor.set(0);
         pidController.reset();
     }
 
-
     public void run() {
         double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
-        
-        //double pidOutput;
-        //if (setpoint == ElevatorConstants.bottomPos) {
+        //uses kP, kI, and kD constants to calculate pidOutput
         double pidOutput = pidController.calculate(currentPosition, setpoint);
-        //} else {
-            //pidOutput = pidController.calculate(currentPosition, setpoint);
-        //}
+
         double feedForward = ElevatorConstants.feedForward*Math.signum(setpoint-currentPosition);
         double output = pidOutput + feedForward;
-
+        
+        //set limits on the output of the motor
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         
         primaryMotor.set(output);
 
         handleBottomLimit();
 
+        //printing data onto FRC Driver Station
         System.out.println("Elevator Position" + currentPosition);
         System.out.println("Elevator Setpoint" +  setpoint);
         System.out.println("Elevator PID Output" + output);
         System.out.println("Elevator Error" + (setpoint-currentPosition));
     }
 
-    
+    //setting target position based on configured button binding
     public Command moveLevel(String level) {
         return runOnce(()-> {
             switch (level) {
@@ -147,19 +125,16 @@ public class Elevator extends SubsystemBase{
                     break;
                 
                 case "L3":
-                    //System.out.println("Working");
                     setTargetPosition(ElevatorConstants.L3);
-                    //primaryMotor.set(0.1);
                     break;
                 case "DOWN":
                     setTargetPosition(ElevatorConstants.bottomPos);
-                    //primaryMotor.set(-0.1);
                     break;
                 case "L0":
                     stopMotors();
                     break;
             }
-        });//.andThen(() -> stopMotors());
+        });
     }
 
     public boolean atSetpoint() {
