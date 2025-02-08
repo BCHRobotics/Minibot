@@ -12,7 +12,7 @@ public final class Constants {
         public static final int leftElevatorID = 21;
         public static final int rightElevatorID = 20;
 
-        public static final double ElevatorkP = 9;
+        public static final double ElevatorkP = 20;
         public static final double ElevatorkI = 0.001;
         public static final double ElevatorkD = 0.005;
         public static final double maxOutput = 0.9;
@@ -21,7 +21,7 @@ public final class Constants {
 
         public static final double downPos = 0.0;
         public static final double bottomPos = 0.0;
-        public static final double topPos = 72.0;
+        public static final double topPos = 72.5;
         public static final double L1 = 24;
         public static final double L2 = 48;
         public static final double L3 = 72;

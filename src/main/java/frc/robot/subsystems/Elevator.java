@@ -7,7 +7,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -50,6 +49,16 @@ public class Elevator extends SubsystemBase{
         
         primaryMotor = new SparkMax(ElevatorConstants.leftElevatorID, MotorType.kBrushless);
         followerMotor = new SparkMax(ElevatorConstants.rightElevatorID, MotorType.kBrushless);
+        
+
+        //setting limits for safety
+        SparkMaxConfig resetConfig = new SparkMaxConfig();
+        resetConfig.idleMode(IdleMode.kBrake);
+        resetConfig.smartCurrentLimit(40);
+        resetConfig.voltageCompensation(12.0);
+        primaryMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
+        followerMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
+            
 
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         //primaryMotor.setInverted(true);
@@ -61,7 +70,6 @@ public class Elevator extends SubsystemBase{
         encoder = primaryMotor.getEncoder();
         bottomLimit = new DigitalInput(ElevatorConstants.limitSwitchPort);
         
-        
         pidController = new PIDController(
             ElevatorConstants.ElevatorkP,
             ElevatorConstants.ElevatorkI,
@@ -70,15 +78,6 @@ public class Elevator extends SubsystemBase{
          
         pidController.setTolerance(0.5);
         
-        //setting limits for safety
-        SparkMaxConfig resetConfig = new SparkMaxConfig();
-        resetConfig.idleMode(IdleMode.kBrake);
-        resetConfig.smartCurrentLimit(40);
-        resetConfig.voltageCompensation(12.0);
-        
-        primaryMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
-        followerMotor.configure(resetConfig, ResetMode.kResetSafeParameters, null);
-    
     }
     
     private void handleBottomLimit() {
@@ -116,11 +115,11 @@ public class Elevator extends SubsystemBase{
         double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
         
         double pidOutput;
-        if (setpoint == ElevatorConstants.bottomPos) {
-            pidOutput = pidController.calculate(currentPosition, setpoint);
-        } else {
-            pidOutput = pidController.calculate(currentPosition, setpoint);
-        }
+        //if (setpoint == ElevatorConstants.bottomPos) {
+        pidOutput = pidController.calculate(currentPosition, setpoint);
+        //} else {
+        //    pidOutput = pidController.calculate(currentPosition, setpoint);
+        //}
         double feedForward = ElevatorConstants.feedForward*Math.signum(setpoint-currentPosition);
         double output = pidOutput + feedForward;
 
@@ -133,6 +132,7 @@ public class Elevator extends SubsystemBase{
         System.out.println("Elevator Position" + currentPosition);
         System.out.println("Elevator Setpoint" +  setpoint);
         System.out.println("Elevator PID Output" + output);
+        System.out.println("Elevator error" + (setpoint - currentPosition));
     }
 
     
@@ -148,7 +148,6 @@ public class Elevator extends SubsystemBase{
                     break;
                 
                 case "L3":
-                    System.out.println("Working");
                     setTargetPosition(ElevatorConstants.L3);
                     break;
                 case "DOWN":
