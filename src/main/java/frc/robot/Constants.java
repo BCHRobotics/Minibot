@@ -22,7 +22,7 @@ public final class Constants {
 
         public static final double downPos = 0.0;
         public static final double bottomPos = 0.0;
-        public static final double topPos = 72.0;
+        public static final double topPos = 72.5;
         public static final double L1 = 24;
         public static final double L2 = 48;
         public static final double L3 = 72;
