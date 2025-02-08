@@ -2,49 +2,38 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DigitalInput;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
 
 public class Elevator extends SubsystemBase {
 
-    private final CANSparkMax primaryMotor;
-    private final CANSparkMax followerMotor;
+    private final SparkMax primaryMotor;
+    private final SparkMax followerMotor;
     private final RelativeEncoder encoder;
     private final DigitalInput bottomLimit;
     private final PIDController pidController;
 
-    private double setpoint = ElevatorConstants.downPos;
+    private double setpoint = ElevatorConstants.bottomPos;
 
     public Elevator() {
-        primaryMotor = new CANSparkMax(ElevatorConstants.leftElevatorID, MotorType.kBrushless);
-        followerMotor = new CANSparkMax(ElevatorConstants.rightElevatorID, MotorType.kBrushless);
+        primaryMotor = new SparkMax(ElevatorConstants.leaderMotor, MotorType.kBrushless);
+        followerMotor = new SparkMax(ElevatorConstants.followerMotor, MotorType.kBrushless);
+
+        // Configure follower motor
+        SparkMaxConfig followerConfig = new SparkMaxConfig();
+        followerConfig.follow(primaryMotor, false);
+        followerMotor.configure(followerConfig, null, null);
+
         encoder = primaryMotor.getEncoder();
         bottomLimit = new DigitalInput(ElevatorConstants.limitSwitchPort);
-
-        followerMotor.follow(primaryMotor, true);
-
-        // Configure motors for safety and performance
-        primaryMotor.restoreFactoryDefaults();
-        primaryMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        primaryMotor.setSmartCurrentLimit(40);
-        primaryMotor.enableVoltageCompensation(12.0);
-
-        followerMotor.restoreFactoryDefaults();
-        followerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        followerMotor.setSmartCurrentLimit(40);
-        followerMotor.enableVoltageCompensation(12.0);
-
-        // Set soft limits
-        primaryMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, (float) ElevatorConstants.topPos * (float) ElevatorConstants.countsPerInch);
-        primaryMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, (float) ElevatorConstants.bottomPos * (float) ElevatorConstants.countsPerInch);
-        primaryMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-        primaryMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 
         pidController = new PIDController(
             ElevatorConstants.ElevatorkP,
@@ -52,6 +41,15 @@ public class Elevator extends SubsystemBase {
             ElevatorConstants.ElevatorkD
         );
         pidController.setTolerance(0.5);
+
+        // Motor safety configuration
+        SparkMaxConfig motorConfig = new SparkMaxConfig();
+        motorConfig.idleMode(IdleMode.kBrake);
+        motorConfig.smartCurrentLimit(40);
+        motorConfig.voltageCompensation(12.0);
+        
+        primaryMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
+        followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
     }
 
     private void handleBottomLimit() {
@@ -72,9 +70,10 @@ public class Elevator extends SubsystemBase {
         pidController.reset();
     }
 
-    @Override
-    public void periodic() {
+    public void run() {
         double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
+
+        handleBottomLimit();
 
         double pidOutput = pidController.calculate(currentPosition, setpoint);
         double feedForward = ElevatorConstants.feedForward * Math.signum(setpoint - currentPosition);
@@ -82,8 +81,6 @@ public class Elevator extends SubsystemBase {
 
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         primaryMotor.set(output);
-
-        handleBottomLimit();
 
         SmartDashboard.putNumber("Elevator Position", currentPosition);
         SmartDashboard.putNumber("Elevator Setpoint", setpoint);

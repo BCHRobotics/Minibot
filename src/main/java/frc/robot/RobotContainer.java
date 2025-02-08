@@ -1,36 +1,36 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.MoveElevatorCommand;
 import frc.robot.subsystems.Elevator;
+
 import frc.robot.Constants.ElevatorConstants;
 
 public class RobotContainer {
+
     private final Elevator elevator = new Elevator();
-    private final XboxController controller = new XboxController(Constants.CONTROLLER.DRIVER_CONTROLLER_PORT);
+
+    private final CommandJoystick joystick = new CommandJoystick(0);
 
     public RobotContainer() {
-        configureButtonBindings();
+        configureBindings();
+
+        // Default command for the elevator to maintain its position
+        elevator.setDefaultCommand(Commands.run(elevator::run, elevator));
     }
 
-    private void configureButtonBindings() {
-        // Example button bindings for elevator control
-        new Trigger(() -> controller.getAButton())
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorConstants.L1));
-
-        new Trigger(() -> controller.getBButton())
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorConstants.L2));
-
-        new Trigger(() -> controller.getXButton())
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorConstants.L3));
-
-        new Trigger(() -> controller.getYButton())
-            .onTrue(new MoveElevatorCommand(elevator, ElevatorConstants.bottomPos));
+    private void configureBindings() {
+        // Bind joystick buttons for elevator control
+        joystick.button(1).onTrue(Commands.runOnce(() -> elevator.setTargetPosition(ElevatorConstants.L1), elevator));
+        joystick.button(2).onTrue(Commands.runOnce(() -> elevator.setTargetPosition(ElevatorConstants.L2), elevator));
+        joystick.button(3).onTrue(Commands.runOnce(() -> elevator.setTargetPosition(ElevatorConstants.L3), elevator));
+        joystick.button(4).onTrue(Commands.runOnce(() -> elevator.setTargetPosition(ElevatorConstants.bottomPos), elevator));
     }
 
-    public Elevator getElevator() {
-        return elevator;
+    public Command getAutonomousCommand() {
+        return Commands.runOnce(() -> elevator.setTargetPosition(ElevatorConstants.L1));
     }
 }
