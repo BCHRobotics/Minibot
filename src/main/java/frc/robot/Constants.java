@@ -12,9 +12,10 @@ public final class Constants {
         public static final int leftElevatorID = 21;
         public static final int rightElevatorID = 20;
 
-        public static final double ElevatorkP = 0.2;
-        public static final double ElevatorkI = 0.001;
-        public static final double ElevatorkD = 0.005;
+        public static final double ElevatorkP = 0.001;
+        //increasing kI leads to acceleration
+        public static final double ElevatorkI = 0;
+        public static final double ElevatorkD = 0;
         public static final double maxOutput = 0.9;
 
         public static final double countsPerInch = 10.0;

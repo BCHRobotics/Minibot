@@ -125,7 +125,7 @@ public class Elevator extends SubsystemBase{
 
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         
-        //primaryMotor.set(0.5);
+        primaryMotor.set(output);
 
         handleBottomLimit();
 
@@ -148,16 +148,16 @@ public class Elevator extends SubsystemBase{
                     break;
                 
                 case "L3":
-                    System.out.println("Working");
+                    //System.out.println("Working");
                     setTargetPosition(ElevatorConstants.L3);
-                    primaryMotor.set(0.1);
+                    //primaryMotor.set(0.1);
                     break;
                 case "DOWN":
                     setTargetPosition(ElevatorConstants.bottomPos);
-                    primaryMotor.set(-0.1);
+                    //primaryMotor.set(-0.1);
                     break;
                 case "L0":
-                    primaryMotor.set(0);
+                    stopMotors();
                     break;
             }
         });//.andThen(() -> stopMotors());
