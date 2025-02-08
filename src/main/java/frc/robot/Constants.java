@@ -17,10 +17,11 @@ public final class Constants {
         //increasing kI leads to acceleration (I is calculated by kI * (sum of past errors))
         public static final double ElevatorkI = 0;
         //increasing kD leads to slowing down as it approaches setpoint
-        public static final double ElevatorkD = 0;
+        public static final double ElevatorkD = 0.00;
         public static final double maxOutput = 0.9;
-
-        public static final double countsPerInch = 10.0;
+        
+        //defining the constant for encoder counts per inch 
+        public static final double countsPerInch = (42*5)/(3.1416*1.751);
 
         //setting the limits for each position (inches)
         public static final double downPos = 0.0;

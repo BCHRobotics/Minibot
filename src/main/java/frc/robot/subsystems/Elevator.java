@@ -118,12 +118,10 @@ public class Elevator extends SubsystemBase{
             switch (level) {
                 case "L1":
                     setTargetPosition(ElevatorConstants.L1);
-                    break;
-                
+                    break;   
                 case "L2":
                     setTargetPosition(ElevatorConstants.L2);
                     break;
-                
                 case "L3":
                     setTargetPosition(ElevatorConstants.L3);
                     break;
