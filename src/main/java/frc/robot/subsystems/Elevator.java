@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
@@ -18,10 +17,13 @@ public class Elevator extends SubsystemBase {
     private final SparkMax primaryMotor;
     private final SparkMax followerMotor;
     private final RelativeEncoder encoder;
+    private final DigitalInput topLimit;
     private final DigitalInput bottomLimit;
-    private final PIDController pidController;
 
     private double setpoint = ElevatorConstants.bottomPos;
+    private final double upSpeed = 0.6; //Sets the up speed
+    private final double downSpeed = -0.5; //Sets the down speed
+
 
     public Elevator() {
         primaryMotor = new SparkMax(ElevatorConstants.leaderMotor, MotorType.kBrushless);
@@ -33,14 +35,8 @@ public class Elevator extends SubsystemBase {
         followerMotor.configure(followerConfig, null, null);
 
         encoder = primaryMotor.getEncoder();
-        bottomLimit = new DigitalInput(ElevatorConstants.limitSwitchPort);
-
-        pidController = new PIDController(
-            ElevatorConstants.ElevatorkP,
-            ElevatorConstants.ElevatorkI,
-            ElevatorConstants.ElevatorkD
-        );
-        pidController.setTolerance(0.5);
+        topLimit = new DigitalInput(ElevatorConstants.topLimitSwitchPort);
+        bottomLimit = new DigitalInput(ElevatorConstants.bottomLimitSwitchPort);
 
         // Motor safety configuration
         SparkMaxConfig motorConfig = new SparkMaxConfig();
@@ -52,14 +48,6 @@ public class Elevator extends SubsystemBase {
         followerMotor.configure(motorConfig, ResetMode.kResetSafeParameters, null);
     }
 
-    private void handleBottomLimit() {
-        if (!bottomLimit.get()) {
-            stopMotors();
-            encoder.setPosition(ElevatorConstants.bottomPos * ElevatorConstants.countsPerInch);
-            setpoint = ElevatorConstants.bottomPos;
-            pidController.reset();
-        }
-    }
 
     public void setTargetPosition(double positionInches) {
         setpoint = MathUtil.clamp(positionInches, ElevatorConstants.bottomPos, ElevatorConstants.topPos);
@@ -67,27 +55,37 @@ public class Elevator extends SubsystemBase {
 
     public void stopMotors() {
         primaryMotor.set(0);
-        pidController.reset();
     }
 
     public void run() {
         double currentPosition = encoder.getPosition() / ElevatorConstants.countsPerInch;
 
-        handleBottomLimit();
+        if (!bottomLimit.get()) {  // If bottom limit switch is pressed
+            stopMotors();
+            encoder.setPosition(ElevatorConstants.bottomPos * ElevatorConstants.countsPerInch); // Reset encoder
+            setpoint = ElevatorConstants.bottomPos;
+            return;
+        }
 
-        double pidOutput = pidController.calculate(currentPosition, setpoint);
-        double feedForward = ElevatorConstants.feedForward * Math.signum(setpoint - currentPosition);
-        double output = pidOutput + feedForward;
-
-        output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
-        primaryMotor.set(output);
-
-        SmartDashboard.putNumber("Elevator Position", currentPosition);
-        SmartDashboard.putNumber("Elevator Setpoint", setpoint);
-        SmartDashboard.putNumber("Elevator PID Output", output);
+        // Handle top limit switch
+        if (!topLimit.get()) {  // If top limit switch is pressed
+            stopMotors();
+            encoder.setPosition(ElevatorConstants.topPos * ElevatorConstants.countsPerInch); // Reset encoder
+            setpoint = ElevatorConstants.topPos;
+            return;}
+        
+            if (currentPosition < setpoint) {
+                primaryMotor.set(upSpeed); // Moves up
+            } else if (currentPosition > setpoint) {
+                primaryMotor.set(downSpeed); // Moves down
+            } else {
+                stopMotors(); // Stop when setpoint is reached
+            }
+    
+            // Display data on dashboard
+            SmartDashboard.putNumber("Elevator Position", currentPosition);
+            SmartDashboard.putNumber("Elevator Setpoint", setpoint);
+            SmartDashboard.putBoolean("Top Limit Reached", !topLimit.get());
+            SmartDashboard.putBoolean("Bottom Limit Reached", !bottomLimit.get());
+        }
     }
-
-    public boolean atSetpoint() {
-        return pidController.atSetpoint();
-    }
-}

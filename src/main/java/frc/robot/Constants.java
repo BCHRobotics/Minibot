@@ -8,15 +8,8 @@ public final class Constants {
         public static final int followerMotor = 20;
 
         // Limit switch port
-        public static final int limitSwitchPort = 0;
-
-        // PID coefficients
-        public static final double ElevatorkP = 0.1;
-        public static final double ElevatorkI = 0.0;
-        public static final double ElevatorkD = 0.0;
-
-        // Feedforward for elevator hold
-        public static final double feedForward = 0.05;
+        public static final int topLimitSwitchPort = 1 ;
+        public static final int bottomLimitSwitchPort = 0;
 
         // Position limits in inches
         public static final double bottomPos = 0.0;
