@@ -2,7 +2,9 @@ package frc.robot.Commands;
 
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.*;
+import com.revrobotics.spark.config.*;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.CHASSIS;

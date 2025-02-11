@@ -101,8 +101,7 @@ public class AutoUtils {
     public static Command BuildAutoFromCommands(String[] _commands, Drivetrain subsystem) {
         // Define the auto as a command and add the first followPath command to it
 
-        Translation2d transform = PathPlannerPath.fromPathFile(_commands[0]).getPoint(0).position;
-        Command followCommand = Commands.runOnce(() -> subsystem.resetPose(new Pose2d(transform.getX(), transform.getY(), new Rotation2d())));
+        Command followCommand = Commands.runOnce(() -> subsystem.resetPose(PathPlannerPath.fromPathFile(_commands[0]).getPreviewStartingHolonomicPose()));
 
         // loop through the command strings and add them to the auto
         for (int i = 0; i < _commands.length; i++) {

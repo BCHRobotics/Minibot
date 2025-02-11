@@ -7,13 +7,11 @@ import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPLTVController;
-import com.pathplanner.lib.util.ReplanningConfig;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.*;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController.AccelStrategy;
+import com.revrobotics.spark.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,8 +30,8 @@ import frc.robot.util.control.SparkMaxPID;
 import frc.robot.util.devices.Gyro;
 
 public class Drivetrain extends SubsystemBase {
-  private final CANSparkMax frontLeftMotor;
-  private final CANSparkMax frontRightMotor;
+  private final SparkMax frontLeftMotor;
+  private final SparkMax frontRightMotor;
 
   private final RelativeEncoder leftEncoder;
   private final RelativeEncoder rightEncoder;
@@ -52,8 +50,8 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drive subsystem. */
   public Drivetrain() {
     // Init the motors
-    this.frontLeftMotor = new CANSparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
-    this.frontRightMotor = new CANSparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
+    this.frontLeftMotor = new SparkMax(CHASSIS.FRONT_LEFT_ID, MotorType.kBrushless);
+    this.frontRightMotor = new SparkMax(CHASSIS.FRONT_RIGHT_ID, MotorType.kBrushless);
     
     this.frontLeftMotor.restoreFactoryDefaults();
     this.frontRightMotor.restoreFactoryDefaults();
@@ -395,7 +393,7 @@ public class Drivetrain extends SubsystemBase {
     double linearSpeed = speed.vxMetersPerSecond;
     double rotSpeed = speed.omegaRadiansPerSecond;
     //dividing by 3.4 because that's more or less the maximum speed of the robot
-    arcadeDrive(Math.min(linearSpeed / 3.4, 0.5), Math.min(rotSpeed, 0.5));
+    arcadeDrive(Math.min(linearSpeed / 3.4, 0.35), Math.min(rotSpeed, 0.35));
   }
 
   /* Gets the position of the robot via pose2d

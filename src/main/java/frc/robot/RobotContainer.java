@@ -137,13 +137,8 @@ public class RobotContainer {
     //return autoChooser.getSelected();
 
     // EVERYTHING FROM HERE ON DOWN IS A TEMPORARY TEST
-
-    // // define the auto as a set of paths in a string
-    // String commandString = "1";
-    // // split up the command string and make an auto with it
-    // return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
-
-    return Commands.runOnce(() -> drivetrain.resetPose(new Pose2d())).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("test")));
+    String commandString = "test,test2";
+    return AutoUtils.BuildAutoFromCommands(AutoUtils.SeparateCommandString(commandString), drivetrain);
   }
 
   /*

@@ -3,7 +3,7 @@ package frc.robot.Commands.Pathing;
 import java.util.concurrent.Callable;
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
