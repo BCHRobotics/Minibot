@@ -79,10 +79,12 @@ public class Elevator extends SubsystemBase{
     
     public void setTargetPosition(double positionInches) {
         //set limits on the target position
-        setpoint = MathUtil.clamp(
+        setpoint = positionInches;
+        /* 
+        MathUtil.clamp(
             positionInches, 
             ElevatorConstants.bottomPos, 
-            ElevatorConstants.topPos);
+            ElevatorConstants.topPos);*/
     }
 
     public void stopMotors() {
@@ -101,6 +103,7 @@ public class Elevator extends SubsystemBase{
         //set limits on the output of the motor
         output = MathUtil.clamp(output, -ElevatorConstants.maxOutput, ElevatorConstants.maxOutput);
         
+        // set the motor output
         primaryMotor.set(output);
 
         handleBottomLimit();
